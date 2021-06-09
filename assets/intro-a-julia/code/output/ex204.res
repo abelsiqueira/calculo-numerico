@@ -1,0 +1,1 @@
+Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-4.gif")

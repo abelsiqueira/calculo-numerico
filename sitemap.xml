@@ -2,55 +2,55 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/zeros-de-funcoes/index.html</loc>
+    <loc>abelsiqueira.github.io/ponto-flutuante/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/intro-a-julia/index.html</loc>
+    <loc>abelsiqueira.github.io/zeros-de-funcoes/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/introducao/index.html</loc>
+    <loc>abelsiqueira.github.io/integracao-numerica/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/quadrados-minimos/index.html</loc>
+    <loc>abelsiqueira.github.io/introducao/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/ponto-flutuante/index.html</loc>
+    <loc>abelsiqueira.github.io/quadrados-minimos/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/sequencias-e-series/index.html</loc>
+    <loc>abelsiqueira.github.io/eliminacao-gaussiana/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/index.html</loc>
+    <loc>abelsiqueira.github.io/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/integracao-numerica/index.html</loc>
+    <loc>abelsiqueira.github.io/intro-a-julia/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>abelsiqueira.github.io/calculo-numerico/eliminacao-gaussiana/index.html</loc>
+    <loc>abelsiqueira.github.io/sequencias-e-series/index.html</loc>
     <lastmod>2021-06-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

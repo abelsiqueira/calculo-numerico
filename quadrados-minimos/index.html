@@ -1,0 +1,1000 @@
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Quadrados Mínimos</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="quadrados_mínimos_e_ajustes_de_curvas"><a href="#quadrados_mínimos_e_ajustes_de_curvas" class=header-anchor >Quadrados Mínimos e Ajustes de Curvas</a></h1> <pre><code class=language-julia >using Plots
+gr&#40;size&#61;&#40;600,400&#41;&#41;</code></pre><pre><code class=plaintext >Plots.GRBackend()</code></pre>
+<p>O problema de ajuste de um conjunto de dados à um modelo, simplesmente dito ajuste de curvas, é um problema bastante prático e recorrente. Esse problema acontece quando temos muito mais informação que o necessário para se determinar exatamente um modelo. Mas isso também só faz sentido se essa informação tiver algum tipo de erro experimental ou intrínseco.</p>
+<p>Considere o seguinte problema de ajustar um conjunto de pontos por uma reta.</p>
+<pre><code class=language-julia >x &#61; &#91;-2, -1, 0, 1, 2.0&#93;
+y &#61; &#91;4, 1, -3, 2, 3.0&#93;
+scatter&#40;x, y&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin01&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin01.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >β₀, β₁, β₂ &#61; -62/70, -1/10, 80/70
+scatter&#40;x, y&#41;
+plot&#33;&#40;x -&gt; β₀ &#43; β₁ * x &#43; β₂ * x^2, -2, 2, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin02&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin02.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >m &#61; 100
+x &#61; range&#40;-3, 7, length&#61;m&#41;
+y &#61; 1.9 .&#43; 0.6*x &#43; randn&#40;m&#41;*0.3
+scatter&#40;x, y, leg&#61;false, c&#61;:lightblue, ms&#61;4&#41;
+plot&#33;&#40;x -&gt; 0.58x &#43; 1.92, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin03&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin03.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >E&#40;α,β&#41; &#61; 0.5 * sum&#40;&#40;y&#91;i&#93; - α - β * x&#91;i&#93;&#41;^2 for i &#61; 1:m&#41;
+contour&#40;range&#40;1, 3, length&#61;100&#41;,
+        range&#40;0.0, 1.0, length&#61;100&#41;,
+        E,
+        levels &#61; 100&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin04&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin04.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >M11 &#61; m
+M12 &#61; M21 &#61; sum&#40;x&#41;
+M22 &#61; sum&#40;x.^2&#41;
+c1 &#61; sum&#40;y&#41;
+c2 &#61; sum&#40;x .* y&#41;
+
+M &#61; &#91;M11 M12; M21 M22&#93;
+c &#61; &#91;c1; c2&#93;
+αβ &#61; M \ c
+
+α, β &#61; αβ&#91;1&#93;, αβ&#91;2&#93;</code></pre><pre><code class=plaintext >(1.9009700269470817, 0.58565223532155)</code></pre>
+<pre><code class=language-julia >E&#40;α,β&#41; &#61; 0.5 * sum&#40;&#40;y&#91;i&#93; - α - β * x&#91;i&#93;&#41;^2 for i &#61; 1:m&#41;
+contour&#40;range&#40;1, 3, length&#61;100&#41;,
+        range&#40;0.0, 1.0, length&#61;100&#41;,
+        E,
+        levels &#61; 50&#41;
+scatter&#33;&#40;&#91;α&#93;, &#91;β&#93;, c&#61;:red, ms&#61;3&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin05&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin05.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false, c&#61;:lightblue, ms&#61;4&#41;
+plot&#33;&#40;x -&gt; α &#43; β * x, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin06&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin06.png" alt=""> 
+  </figure>
+  
+<p>Não existe uma reta que passa por todos esses pontos. Inclusive, alguns deles podem ter o mesmo \(x\), de modo que não existe nenhum função que passa por eles. Sendo assim, precisamos encontrar uma reta que aproxima estes pontos.</p>
+<p>Essa reta é definida por \(L(x) = \alpha + \beta x\), e precisamos encontrar esses valores para \(\alpha\) e \(\beta\).</p>
+<p>Uma estratégia é considerar o erro de aproximação e tentar minimizá-lo. Vamos separar o erro termo a termo, obtendo assim um Erro\(_i\), que depende dos valores de \(\alpha\) e \(\beta\).</p>
+<p>Nosso problema pode ser escrito como</p>
+\[ \min E(\alpha,\beta) = \sum_{i=1}^m \text{Erro}_i(\alpha,\beta). \]
+<p>Já sabemos que para minimizar uma função, devemos buscar seus pontos críticos. Isto é,</p>
+\[ \frac{\partial E}{\partial \alpha} = 0, \]
+<p>e</p>
+\[ \frac{\partial E}{\partial \beta} = 0. \]
+<p>Para calcular essa derivada, devemos calcular a derivada de Erro\(_i\). Então, a escolha dessa função de erro deve ser bem pensada, para que seja significativa e fácil de derivar.</p>
+<p>A escolha mais comum é Erro\(_i = \frac{1}{2}[\alpha + \beta x_i - y_i]^2 = \frac{1}{2}[L(x_i) - y_i]^2\).</p>
+<p>Essa escolha é boa pois a derivada dessa função é fácil de calcular, e é fácil de visualizar que é o quadrado da distância vertical da reta ao ponto \((x_i,y_i)\).</p>
+<pre><code class=language-julia >E&#40;0,0&#41;</code></pre><pre><code class=plaintext >622.0267665906364</code></pre>
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;0 &#43; 0*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin07&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin07.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >E&#40;2,0&#41;</code></pre><pre><code class=plaintext >207.57186707259999</code></pre>
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;2 &#43; 0*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin08&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin08.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >E&#40;2,0.5&#41;</code></pre><pre><code class=plaintext >7.663963746761247</code></pre>
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;2 &#43; 0.5*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin09&quot;&#41;&#41;</code></pre>
+<p>
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin09.png" alt=""> 
+  </figure>
+   É fácil ver que</p>
+\[ \partial_{\alpha} E(\alpha,\beta) = \sum_{i=1}^m (\alpha + \beta x_i - y_i), \]
+<p>e</p>
+\[ \partial_{\beta} E(\alpha,\beta) = \sum_{i=1}^m x_i (\alpha + \beta x_i - y_i). \]
+<p>Como nosso objetivo é encontrar \(\alpha\) e \(\beta\) tal que essas duas equações sejam zero, obtemos um sistema em \(\alpha\) e \(\beta\):</p>
+\[\begin{aligned}
+\alpha \bigg(\sum_{i=1}^m 1\bigg) + \beta\bigg(\sum_{i=1}^m x_i\bigg) & = \sum_{i=1}^m y_i \\
+\alpha \bigg(\sum_{i=1}^m x_i\bigg) + \beta\bigg(\sum_{i=1}^m x_i^2\bigg) & = \sum_{i=1}^m x_i y_i
+\end{aligned}\]
+<p>Esse sistema é bastante fácil de resolver.</p>
+<p>Lembrando</p>
+<pre><code class=language-julia >using LinearAlgebra
+dot&#40;x, y&#41;</code></pre><pre><code class=plaintext >1112.357894193765</code></pre>
+<pre><code class=language-julia >M &#61; &#91;m  sum&#40;x&#41;; sum&#40;x&#41;   dot&#40;x,x&#41;&#93;</code></pre><pre><code class=plaintext >2×2 Matrix{Float64}:
+ 100.0   200.0
+ 200.0  1250.17</code></pre>
+<pre><code class=language-julia >b &#61; &#91;sum&#40;y&#41;; dot&#40;x,y&#41;&#93;</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
+  307.2274497590182
+ 1112.357894193765</code></pre>
+<pre><code class=language-julia >α, β &#61; M\b</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
+ 1.9009700269470817
+ 0.5856522353215503</code></pre>
+<pre><code class=language-julia >E&#40;α,β&#41;</code></pre><pre><code class=plaintext >4.2842362609189655</code></pre>
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;α &#43; β*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin10&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin10.png" alt=""> 
+  </figure>
+  
+<p>Visualmente, a reta parece aproximar bem mesmo os pontos dados.</p>
+<p>Um problema levemente diferente, mas parecido é o seguinte: todos os dias por um ano uma pessoa anota a temperatura média do dia.</p>
+<pre><code class=language-julia >using Random
+Random.seed&#33;&#40;0&#41;
+m &#61; 365 * 5
+t &#61; range&#40;0, 5, length&#61;m&#41;
+
+phi1&#40;t&#41; &#61; sin&#40;2pi*t&#41;
+phi2&#40;t&#41; &#61; cos&#40;2pi*t&#41;
+phi3&#40;t&#41; &#61; 1
+
+b &#61; 6*phi1.&#40;t&#41; &#43; 4*phi2.&#40;t&#41; &#43; 12*phi3.&#40;t&#41; &#43; randn&#40;m&#41;*1.1 &#43;
+    &#91;rand&#40;&#41; &lt; 0.2 ? randn&#40;&#41; * 3.5 : 0.0 for i &#61; 1:m&#93;
+y &#61; b
+
+scatter&#40;t, b, c&#61;:lightblue, ms&#61;3, leg&#61;false&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin11&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin11.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >ϕ₁ &#61; ones&#40;m&#41;
+ϕ₂ &#61; sin.&#40;2π * t&#41;
+ϕ₃ &#61; cos.&#40;2π * t&#41;
+
+M &#61; &#91;dot&#40;ϕ₁, ϕ₁&#41;  dot&#40;ϕ₂, ϕ₁&#41;  dot&#40;ϕ₃, ϕ₁&#41;;
+     dot&#40;ϕ₁, ϕ₂&#41;  dot&#40;ϕ₂, ϕ₂&#41;  dot&#40;ϕ₃, ϕ₂&#41;;
+     dot&#40;ϕ₁, ϕ₃&#41;  dot&#40;ϕ₂, ϕ₃&#41;  dot&#40;ϕ₃, ϕ₃&#41;&#93;
+c &#61; &#91;dot&#40;ϕ₁, y&#41;; dot&#40;ϕ₂, y&#41;; dot&#40;ϕ₃, y&#41;&#93;
+
+β &#61; M \ c
+y_pred &#61; β&#91;1&#93; * ϕ₁ &#43; β&#91;2&#93; * ϕ₂ &#43; β&#91;3&#93; * ϕ₃
+
+scatter&#40;t, y, c&#61;:lightblue, ms&#61;3, leg&#61;false&#41;
+plot&#33;&#40;t, y_pred, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin12&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin12.png" alt=""> 
+  </figure>
+  
+<p>Seu objetivo é estimar a temperatura em um dia no futuro. Olhando para o gráfico, aparentemente a temperatura segue um modelo do tipo</p>
+\[
+T(t) = \alpha + \beta \sin(2\pi t) + \gamma \cos(2\pi t).
+\]
+<p>Note que o intervalo foi normalizado para \(t \in [0,1]\).</p>
+<p>Se \(T_i\) é o valor medido no instante \(t_i = \dfrac{i-1}{364}\), então definimos o erro como</p>
+\[ E(\alpha,\beta,\gamma) =
+    \frac{1}{2}\sum_{i=1}^m [T(t_i) - T_i]^2. \]
+<p>Novamente, para minimizar esse erro, calcularemos as derivadas parciais e igualaremos a zero. Note que apesar de \(T\) ser uma função não linear em \(t\), ela é linear em \(\alpha\), \(\beta\) e \(\gamma\).</p>
+\[\begin{aligned}
+\partial_{\alpha} E(\alpha,\beta,\gamma)
+& = \sum_{i = 1}^m [T(t_i) - T_i] = 0 \\
+\partial_{\beta} E(\alpha,\beta,\gamma)
+& = \sum_{i = 1}^m [T(t_i) - T_i] \sin(2\pi t_i) = 0 \\
+\partial_{\gamma} E(\alpha,\beta,\gamma)
+& = \sum_{i = 1}^m[T(t_i) - T_i] \cos(2\pi t_i) = 0.
+\end{aligned}\]
+\[\begin{aligned}
+\alpha \bigg(\sum_{i=1}^m 1\bigg) +
+\beta  \bigg(\sum_{i=1}^m \sin(2\pi t_i)\bigg) +
+\gamma \bigg(\sum_{i=1}^m \cos(2\pi t_i)\bigg)
+& = \sum_{i=1}^m T_i \\
+\alpha \bigg(\sum_{i=1}^m \sin(2\pi t_i)\bigg) +
+\beta  \bigg(\sum_{i=1}^m \sin^2(2\pi t_i)\bigg) +
+\gamma \bigg(\sum_{i=1}^m \sin(2\pi t_i)\cos(2\pi t_i)\bigg)
+& = \sum_{i=1}^m T_i \sin(2\pi t_i) \\
+\alpha \bigg(\sum_{i=1}^m \cos(2\pi t_i)\bigg) +
+\beta  \bigg(\sum_{i=1}^m \sin(2\pi t_i)\cos(2\pi t_i)\bigg) +
+\gamma \bigg(\sum_{i=1}^m \cos^2(2\pi t_i)\bigg)
+& = \sum_{i=1}^m T_i \cos(2\pi t_i).
+\end{aligned}\]
+<p>Note que podemos facilitar a maneira de escrever esse sistema definindo os seguintes vetores</p>
+\[
+v^{(1)} = \left(\begin{array}{c}
+1 \\
+1 \\
+\vdots \\
+1
+\end{array}\right),
+\quad
+v^{(2)} = \left(\begin{array}{c}
+\sin(2\pi t_1) \\
+\sin(2\pi t_2) \\
+\vdots \\
+\sin(2\pi t_{365})
+\end{array}\right),
+\quad
+v^{(3)} = \left(\begin{array}{c}
+\cos(2\pi t_1) \\
+\cos(2\pi t_2) \\
+\vdots \\
+\cos(2\pi t_{365})
+\end{array}\right),
+\quad
+b = \left(\begin{array}{c}
+T_1 \\
+T_2 \\
+\vdots \\
+T_{365}
+\end{array}\right).
+\]
+<p>Daí, a matriz do sistema é</p>
+\[\left[\begin{array}{ccc}
+\left\langle v^{(1)}, v^{(1)} \right\rangle &
+\left\langle v^{(1)}, v^{(2)} \right\rangle &
+\left\langle v^{(1)}, v^{(3)} \right\rangle \\
+\left\langle v^{(2)}, v^{(1)} \right\rangle &
+\left\langle v^{(2)}, v^{(2)} \right\rangle &
+\left\langle v^{(2)}, v^{(3)} \right\rangle \\
+\left\langle v^{(3)}, v^{(1)} \right\rangle &
+\left\langle v^{(3)}, v^{(2)} \right\rangle &
+\left\langle v^{(3)}, v^{(3)} \right\rangle
+\end{array}\right],\]
+<p>e o vetor do lado direito é</p>
+\[\left[\begin{array}{c}
+\left\langle v^{(1)}, b \right\rangle \\
+\left\langle v^{(2)}, b \right\rangle \\
+\left\langle v^{(3)}, b \right\rangle
+\end{array}\right].\]
+<pre><code class=language-julia >m &#61; 365
+t &#61; range&#40;0, 1, length&#61;m&#41;
+v1 &#61; ones&#40;m&#41;
+v2 &#61; sin.&#40;2π * t&#41;
+v3 &#61; cos.&#40;2π * t&#41;
+M &#61; &#91;dot&#40;v1, v1&#41; dot&#40;v1, v2&#41; dot&#40;v1, v3&#41;;
+     dot&#40;v2, v1&#41; dot&#40;v2, v2&#41; dot&#40;v2, v3&#41;;
+     dot&#40;v3, v1&#41; dot&#40;v3, v2&#41; dot&#40;v3, v3&#41;&#93;
+c &#61; &#91;dot&#40;v1, b&#41;; dot&#40;v2, b&#41;; dot&#40;v3, b&#41;&#93;
+
+α, β, γ &#61; M\c
+
+scatter&#40;t, b, leg&#61;false&#41;
+plot&#33;&#40;t-&gt;α &#43; β*sin&#40;2π*t&#41; &#43; γ*cos&#40;2π*t&#41;, 0, 1, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin13&quot;&#41;&#41;</code></pre><pre><code class=plaintext >DimensionMismatch("dot product arguments have lengths 365 and 1825")
+</code></pre>
+
+  <figure style="text-align: center">
+   <p><span style="color:red;">// Image matching '/assets/quadrados-minimos/code/fig-quadmin13' not found. //</span></p> 
+  </figure>
+  
+<p>Vimos como adaptar um conjunto de dados por alguns modelos específicos. De uma maneira geral, podemos considerar um modelo da forma</p>
+\[ f(x) = \alpha_1 \phi_1(x) + \dots + \alpha_n \phi_n(x), \]
+<p>e fazer o mesmo procedimento.</p>
+<p>Esse problema com esse modelo é dito <strong>quadrados mínimos lineares discretos.</strong></p>
+<p>Para encontrar os parâmetros \(\alpha\) fazemos o mesmo procedimento anterior:</p>
+\[ \min E(\alpha) = \frac{1}{2} \sum_{i=1}^m [y_i - f(x_i)]^2
+= \frac{1}{2} \sum_{i=1}^m \bigg[y_i - \sum_{j=1}^n \alpha_j\phi_j(x_i)\bigg]^2. \]
+<p>Derivando em cada \(\alpha_k\) nos dá um sistema \(M\alpha = c\), onde</p>
+\[ M_{kj} = \sum_{i=1}^m \phi_k(x_i)\phi_j(x_i) \qquad \text{e}
+\qquad c_j = \sum_{i=1}^m \phi_j(x_i) y_i. \]
+<p>Dados a função \(\phi_j\) e os pontos \(x_i\), podemos definir um vetor \(\overline{\phi}_j = (\phi_j(x_1), \dots, \phi_j(x_m))^T\), isto é, o vetor obtido aplicando \(\phi_j\) em cada elemento \(x_i\). Com essa definição, podemos escrever</p>
+\[ M_{k,j} = \langle\overline{\phi}_k,\overline{\phi}_j\rangle \qquad \text{e} \qquad
+c_j = \langle\overline{\phi}_j, y\rangle. \]
+<p>O sistema \(M\alpha = c\) é chamado de <strong>sistema normal</strong>.</p>
+<p>A medida de qualidade para cada dado individual é dada pelo <strong>resíduo</strong>:</p>
+\[ r = \left[\begin{array}{c}
+y_1 - f(x_1) \\
+y_2 - f(x_2) \\
+\vdots \\
+y_m - f(x_m)
+\end{array}\right] \]
+<p>O erro pode ser escrito como \(E(\alpha) = \frac{1}{2}\Vert r\Vert^2\).</p>
+<pre><code class=language-julia >x &#61; &#91;0.0; 1; 2; 3; 4&#93;
+y &#61; &#91;-1.0; 1; 1; 3; 5&#93;
+scatter&#40;x, y, leg&#61;false&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin14&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin14.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >A &#61; &#91;ones&#40;5&#41;  x  x.^2&#93;</code></pre><pre><code class=plaintext >5×3 Matrix{Float64}:
+ 1.0  0.0   0.0
+ 1.0  1.0   1.0
+ 1.0  2.0   4.0
+ 1.0  3.0   9.0
+ 1.0  4.0  16.0</code></pre>
+<pre><code class=language-julia >A&#39; * A</code></pre><pre><code class=plaintext >3×3 Matrix{Float64}:
+  5.0   10.0   30.0
+ 10.0   30.0  100.0
+ 30.0  100.0  354.0</code></pre>
+<pre><code class=language-julia >A&#39; * y</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
+   9.0
+  32.0
+ 112.0</code></pre>
+<pre><code class=language-julia >β &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
+ -0.7142857142857146
+  0.8285714285714288
+  0.1428571428571428</code></pre>
+<pre><code class=language-julia >n &#61; 1000
+x &#61; range&#40;-2, 3, length&#61;n&#41;
+y &#61; exp.&#40;-x&#41; .* x &#43; randn&#40;n&#41;
+scatter&#40;x, y&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin15&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin15.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >ϕ1&#40;x&#41; &#61; log&#40;x &#43; 2 &#43; 1e-8&#41;
+ϕ2&#40;x&#41; &#61; sqrt&#40;x &#43; 2&#41;
+ϕ3&#40;x&#41; &#61; 1.0
+ϕ4&#40;x&#41; &#61; exp&#40;x&#41;
+ϕ5&#40;x&#41; &#61; sin&#40;x&#41;
+X &#61; &#91;ϕ1.&#40;x&#41; ϕ2.&#40;x&#41; ϕ3.&#40;x&#41; ϕ4.&#40;x&#41; ϕ5.&#40;x&#41;&#93;
+β &#61; &#40;X&#39; * X&#41; \ &#40;X&#39; * y&#41;
+scatter&#40;x, y&#41;
+plot&#33;&#40;x -&gt; β&#91;1&#93; * ϕ1&#40;x&#41; &#43; β&#91;2&#93; * ϕ2&#40;x&#41; &#43; β&#91;3&#93; * ϕ3&#40;x&#41; &#43; β&#91;4&#93; * ϕ4&#40;x&#41; &#43; β&#91;5&#93; * ϕ5&#40;x&#41;, -2, 3, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin16&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin16.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; β&#91;2&#93; * x &#43; β&#91;3&#93; * x^2, -0.5, 4.5, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin17&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin17.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >&quot;&quot;&quot;&#96;regressao_linear&#40;x, y&#41;&#96;
+Calcule y ~ α &#43; β x
+&quot;&quot;&quot;
+function regressao_linear&#40;x, y&#41;
+    m &#61; length&#40;x&#41;
+    A &#61; &#91;ones&#40;m&#41;  x&#93;
+    sol &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;
+    α, β &#61; sol&#91;1&#93;, sol&#91;2&#93;
+    return α, β
+end
+
+&quot;&quot;&quot;
+y ~ β₀ &#43; β₁ x &#43; … &#43; βₚ xᵖ
+&quot;&quot;&quot;
+function regressao_polinomial&#40;x, y, p&#41;
+    m &#61; length&#40;x&#41;
+    A &#61; ones&#40;m, p &#43; 1&#41;
+    for i &#61; 1:m
+        for j &#61; 2:p&#43;1
+            A&#91;i,j&#93; &#61; x&#91;i&#93;^&#40;j - 1&#41;
+        end
+    end
+    β &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;
+    return β
+end</code></pre><pre><code class=plaintext >regressao_polinomial</code></pre>
+<pre><code class=language-julia >using DelimitedFiles
+
+data &#61; readdlm&#40;&quot;dados.csv&quot;, &#39;,&#39;&#41;
+x, y &#61; data&#91;:,1&#93;, log.&#40;data&#91;:,2&#93; .- 44&#41;
+p &#61; 3
+β &#61; regressao_polinomial&#40;x, y, p&#41;
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; sum&#40;β&#91;j&#43;1&#93;*x^j for j &#61; 1:p&#41;, x&#91;1&#93;, x&#91;end&#93;, lw&#61;2, c&#61;:red&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin18&quot;&#41;&#41;</code></pre><pre><code class=plaintext >BoundsError: attempt to access 2×1 Matrix{Any} at index [1:2, 2]
+</code></pre>
+
+  <figure style="text-align: center">
+   <p><span style="color:red;">// Image matching '/assets/quadrados-minimos/code/fig-quadmin18' not found. //</span></p> 
+  </figure>
+  
+<pre><code class=language-julia >data &#61; readdlm&#40;&quot;dados.csv&quot;, &#39;,&#39;&#41;
+x, y &#61; data&#91;:,1&#93;, data&#91;:,2&#93;
+α, β &#61; regressao_linear&#40;x, y&#41;
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x -&gt; α &#43; β * x, lw&#61;2, c&#61;:red&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin19&quot;&#41;&#41;</code></pre><pre><code class=plaintext >BoundsError: attempt to access 2×1 Matrix{Any} at index [1:2, 2]
+</code></pre>
+
+  <figure style="text-align: center">
+   <p><span style="color:red;">// Image matching '/assets/quadrados-minimos/code/fig-quadmin19' not found. //</span></p> 
+  </figure>
+  
+<pre><code class=language-julia >function quadmin&#40;x, y, F::Array&#123;Function&#125;&#41;
+    #Implemente
+end
+
+F &#61; &#91;x-&gt;1, x-&gt;sin&#40;2π*x&#41;, x-&gt;cos&#40;2π*x&#41;, x-&gt;sin&#40;4π*x&#41;, x-&gt;cos&#40;4π*x&#41;, x-&gt;sin&#40;6π*x&#41;, x-&gt;cos&#40;6π*x&#41;&#93;
+n &#61; length&#40;F&#41;</code></pre><pre><code class=plaintext >7</code></pre>
+<p>Mesmos t e b do exemplo anterior</p>
+<pre><code class=language-julia >α &#61; quadmin&#40;t, b, F&#41;
+scatter&#40;t, b, leg&#61;false, ms&#61;3, c&#61;:lightblue&#41;
+#plot&#33;&#40;t-&gt;α&#91;1&#93;*F&#91;1&#93;&#40;t&#41; &#43; α&#91;2&#93;*F&#91;2&#93;&#40;t&#41; &#43; α&#91;3&#93;*F&#91;3&#93;&#40;t&#41;, 0, 1, c&#61;:red, lw&#61;2&#41;
+plot&#33;&#40;t -&gt; sum&#40;α&#91;j&#93;*F&#91;j&#93;&#40;t&#41; for j &#61; 1:n&#41;, 0, 1, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin20&quot;&#41;&#41;</code></pre><pre><code class=plaintext >MethodError: no method matching getindex(::Nothing, ::Int64)
+</code></pre>
+<p>
+  <figure style="text-align: center">
+   <p><span style="color:red;">// Image matching '/assets/quadrados-minimos/code/fig-quadmin20' not found. //</span></p> 
+  </figure>
+   Podemos escrever essa combinação de uma maneira resumida</p>
+<pre><code class=language-julia >f&#40;t&#41; &#61; sum&#40;α&#91;i&#93; * F&#91;i&#93;&#40;t&#41; for i &#61; 1:3&#41;
+
+scatter&#40;t, b, leg&#61;false&#41;
+plot&#33;&#40;f, 0, 1, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin21&quot;&#41;&#41;</code></pre><pre><code class=plaintext >MethodError: no method matching getindex(::Nothing, ::Int64)
+</code></pre>
+
+  <figure style="text-align: center">
+   <p><span style="color:red;">// Image matching '/assets/quadrados-minimos/code/fig-quadmin21' not found. //</span></p> 
+  </figure>
+  
+<h2 id=avaliando_o_modelo ><a href="#avaliando_o_modelo" class=header-anchor >Avaliando o modelo</a></h2>
+<pre><code class=language-julia >X &#61; &#91;ones&#40;4&#41; collect&#40;1:4&#41;&#93;
+y &#61; &#91;2.1; 4.4; 7.3; 15.9&#93;
+lny &#61; log.&#40;y&#41;
+X \ lny
+β &#61; &#91;0.0996; 0.658&#93;
+exp.&#40;X * β&#41;
+
+x &#61; collect&#40;1:4&#41;
+scatter&#40;x, y, leg&#61;false&#41;
+scatter&#33;&#40;x, exp.&#40;X * β&#41;, c&#61;:red, ms&#61;5&#41;
+plot&#33;&#40;x -&gt; exp&#40;β&#91;1&#93; &#43; β&#91;2&#93; * x&#41;, c&#61;:red&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin22&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin22.png" alt=""> 
+  </figure>
+  
+<p>A avaliação de um modelo...</p>
+<h3 id="regressão_polinomial_-_implementação"><a href="#regressão_polinomial_-_implementação" class=header-anchor >Regressão Polinomial - Implementação</a></h3>
+<pre><code class=language-julia >&quot;&quot;&quot;
+y ~ β₀ &#43; β₁ x &#43; … &#43; βₚ xᵖ
+&quot;&quot;&quot;
+function regressao_polinomial&#40;x, y, p&#41;
+    m &#61; length&#40;x&#41;
+    A &#61; ones&#40;m, p &#43; 1&#41;
+    for i &#61; 1:m
+        for j &#61; 2:p&#43;1
+            A&#91;i,j&#93; &#61; x&#91;i&#93;^&#40;j - 1&#41;
+        end
+    end
+    β &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;
+    return β
+end</code></pre><pre><code class=plaintext >regressao_polinomial</code></pre>
+<h3 id=r2 ><a href="#r2" class=header-anchor >\(R^2\)</a></h3>
+<p>Vamos voltar para o problema inicial de ajustar dados por uma reta: \((x_i, y_i), i = 1,\dots,m\). Vamos chamar a solução encontrada de \(\hat{y} = a x + b\), isto é \(\hat{y}_i = a x_i + b \approx y_i\).</p>
+<p>O método de Quadrados Mínimos encontrou o menor valor possível para \(\displaystyle \sum_{i=1}^m(\hat{y}_i - y_i)^2\), porém não é uma métrica suficiente de qualidade. Vamos definir </p>
+\[S_r = \displaystyle \sum_{i=1}^m(\hat{y}_i - y_i)^2.\]
+<p>Por outro lado, vamos considerar a variação da média dos dados \(y_i\):</p>
+\[ S_T = \sum_{i=1}^m(y_i - y_{Med})^2,\]
+<p>onde \(\displaystyle y_{Med} = \frac{1}{m} \sum_{i=1} y_i\) é a média dos dados \(y_i\).</p>
+<p>Veja que \(S_T\) pode ser visto como o erro do modelo constante igual à \(y_{Med}\).</p>
+<pre><code class=language-julia >using Random, Statistics
+Random.seed&#33;&#40;0&#41;
+m &#61; 10
+x &#61; collect&#40;range&#40;-3, 7, length&#61;m&#41;&#41;
+y &#61; 1.9 .&#43; 0.6*x &#43; randn&#40;m&#41;*0.75 # Gerando pontos aleatórios
+
+M &#61; &#91;m sum&#40;x&#41;; sum&#40;x&#41; dot&#40;x,x&#41;&#93;
+b &#61; &#91;sum&#40;y&#41;; dot&#40;x,y&#41;&#93;
+α &#61; M \ b
+p &#61; 1
+α &#61; regressao_polinomial&#40;x, y, p&#41;
+
+y_pred &#61; α&#91;1&#93; .&#43; α&#91;2&#93; * x# &#43; α&#91;3&#93; * x.^2 &#43; α&#91;4&#93; * x.^3
+y_pred &#61; α&#91;1&#93; .&#43; sum&#40;α&#91;j&#43;1&#93; * x.^j for j &#61; 1:p&#41;
+y_med &#61; mean&#40;y&#41;
+
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;&#91;x&#91;1&#93;, x&#91;end&#93;&#93;, &#91;y_med, y_med&#93;, c&#61;:blue&#41;
+for i &#61; 1:m
+    plot&#33;&#40;&#91;x&#91;i&#93;, x&#91;i&#93;&#93;, &#91;y&#91;i&#93;, y_med&#93;, c&#61;:red, l&#61;:dash&#41;
+end
+title&#33;&#40;&quot;y_Med&quot;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin23&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin23.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
+#plot&#33;&#40;x, y_pred, c&#61;:blue&#41;
+xlin &#61; range&#40;x&#91;1&#93;, x&#91;end&#93;, length&#61;100&#41;
+ylin &#61; α&#91;1&#93; .&#43; sum&#40;α&#91;j&#43;1&#93; * xlin.^j for j &#61; 1:p&#41;
+plot&#33;&#40;xlin, ylin, c&#61;:blue&#41;
+for i &#61; 1:m
+    plot&#33;&#40;&#91;x&#91;i&#93;, x&#91;i&#93;&#93;, &#91;y&#91;i&#93;, y_pred&#91;i&#93;&#93;, c&#61;:red, l&#61;:dash&#41;
+end
+title&#33;&#40;&quot;y_pred&quot;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin24&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin24.png" alt=""> 
+  </figure>
+  
+<p>A métrica \(R^2\) é definida pela fórmula</p>
+\[ R^2 = 1 - \frac{S_r}{S_T}. \]
+<p>Quanto mais próximo de \(1\), melhor o modelo.</p>
+<pre><code class=language-julia >R2 &#61; 1 - norm&#40;y_pred - y&#41;^2 / norm&#40;y_med .- y&#41;^2</code></pre><pre><code class=plaintext >0.947388477570736</code></pre>
+<p>Para um modelo não ótimo:</p>
+<pre><code class=language-julia >y_nao_otimo &#61; 1.9 .&#43; 0.6*x # Escolhido sabiamente
+
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;x, y_nao_otimo, c&#61;:blue&#41;
+for i &#61; 1:m
+    plot&#33;&#40;&#91;x&#91;i&#93;, x&#91;i&#93;&#93;, &#91;y&#91;i&#93;, y_nao_otimo&#91;i&#93;&#93;, c&#61;:red, l&#61;:dash&#41;
+end
+title&#33;&#40;&quot;y_nao_otimo&quot;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin25&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin25.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >R2 &#61; 1 - norm&#40;y_nao_otimo - y&#41;^2 / norm&#40;y_med .- y&#41;^2</code></pre><pre><code class=plaintext >0.9350294978415356</code></pre>
+<h3 id=exemplo_polinomial ><a href="#exemplo_polinomial" class=header-anchor >Exemplo polinomial</a></h3>
+<pre><code class=language-julia >m &#61; 365
+t &#61; range&#40;0, 1, length&#61;m&#41;
+v1 &#61; ones&#40;m&#41;
+v2 &#61; sin.&#40;2π * t&#41;
+v3 &#61; cos.&#40;2π * t&#41;
+y &#61; 6 * v1 &#43; 4 * v2 &#43; 12 * v3 &#43; randn&#40;m&#41;*2.0 &#43;
+    &#91;rand&#40;&#41; &lt; 0.2 ? randn&#40;&#41; * 3.5 : 0.0 for i &#61; 1:m&#93;
+M &#61; &#91;dot&#40;v1, v1&#41; dot&#40;v1, v2&#41; dot&#40;v1, v3&#41;;
+     dot&#40;v2, v1&#41; dot&#40;v2, v2&#41; dot&#40;v2, v3&#41;;
+     dot&#40;v3, v1&#41; dot&#40;v3, v2&#41; dot&#40;v3, v3&#41;&#93;
+c &#61; &#91;dot&#40;v1, y&#41;; dot&#40;v2, y&#41;; dot&#40;v3, y&#41;&#93;
+α &#61; M \ c
+y_pred &#61; α&#91;1&#93; * v1 &#43; α&#91;2&#93; * v2 &#43; α&#91;3&#93; * v3
+y_med &#61; mean&#40;y&#41;
+y_quase &#61; 6.5 * v1 &#43; 4.5 * v2 &#43; 11 * v3
+
+scatter&#40;t, y, c&#61;:black, ms&#61;1, leg&#61;false&#41;
+plot&#33;&#40;&#91;t&#91;1&#93;, t&#91;end&#93;&#93;, &#91;y_med, y_med&#93;, c&#61;:black, l&#61;:dash, lw&#61;1&#41;
+plot&#33;&#40;t, y_quase, c&#61;:blue, lw&#61;2&#41;
+plot&#33;&#40;t, y_pred, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin26&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin26.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >ST &#61; norm&#40;y .- y_med&#41;^2
+Sr_quase &#61; norm&#40;y - y_quase&#41;^2
+Sr_pred &#61; norm&#40;y - y_pred&#41;^2
+R2_quase &#61; 1 - Sr_quase / ST
+R2_pred &#61; 1 - Sr_pred / ST
+println&#40;&quot;R2_quase &#61; &#36;R2_quase&quot;&#41;
+println&#40;&quot;R2_pred &#61; &#36;R2_pred&quot;&#41;</code></pre><pre><code class=plaintext >R2_quase = 0.9116950354203089
+R2_pred = 0.9228452967060901
+</code></pre>
+<h2 id="validação_cruzada"><a href="#validação_cruzada" class=header-anchor >Validação Cruzada</a></h2>
+<p>Outra questão do ajuste é que se ele generaliza bem o problema. Podemos ajustar um conjunto de dados com \(x\) distintos por um polinômio de grau suficientemente grande e obter uma solução perfeita:</p>
+<pre><code class=language-julia >function regressao_polinomial&#40;x, y, p&#41;
+    m &#61; length&#40;x&#41;
+    A &#61; &#91;ones&#40;m&#41; &#91;x&#91;i&#93;^j for i &#61; 1:m, j &#61; 1:p&#93;&#93;
+    #β &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;
+    β &#61; A \ y
+    return β
+end
+
+Random.seed&#33;&#40;0&#41;
+m &#61; 10
+x &#61; sort&#40;rand&#40;m&#41;&#41;
+#x &#61; collect&#40;range&#40;-1, 1, length&#61;m&#41;&#41;
+y &#61; 3x .&#43; 5 &#43; randn&#40;m&#41; * 0.25
+scatter&#40;x, y, leg&#61;false&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin27&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin27.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >p &#61; 1
+β &#61; regressao_polinomial&#40;x, y, p&#41;
+xlin &#61; range&#40;extrema&#40;x&#41;..., length&#61;100&#41;
+y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; xlin&#93;
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;xlin, y_pred, c&#61;:red, lw&#61;2&#41;
+#ylims&#33;&#40;4.9, 8.1&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin28&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin28.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >y_med &#61; mean&#40;y&#41;
+y_pred &#61; &#91;β&#91;1&#93; .&#43; sum&#40;β&#91;j &#43; 1&#93; * x&#91;i&#93;.^j for j &#61; 1:p&#41; for i &#61; 1:m&#93;
+ST &#61; norm&#40;y .- y_med&#41;^2
+Sr_pred &#61; norm&#40;y - y_pred&#41;^2
+R2_pred &#61; 1 - Sr_pred / ST</code></pre><pre><code class=plaintext >0.9237371353683814</code></pre>
+<pre><code class=language-julia >using Printf
+p &#61; 9
+
+β &#61; regressao_polinomial&#40;x, y, p&#41;
+y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; x&#93;
+
+xlin &#61; range&#40;extrema&#40;x&#41;..., length&#61;100&#41;
+ylin &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; xlin&#93;
+scatter&#40;x, y, leg&#61;false&#41;
+plot&#33;&#40;xlin, ylin, c&#61;:red, lw&#61;2&#41;
+ylims&#33;&#40;0, 10&#41;
+R2 &#61; 1 - norm&#40;y - y_pred&#41;^2 / norm&#40;y .- y_med&#41;^2
+title&#33;&#40;@sprintf&#40;&quot;SQR &#61; &#37;6.4f, R2 &#61; &#37;6.4f&quot;, norm&#40;y_pred - y&#41;^2, R2&#41;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin29&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin29.png" alt=""> 
+  </figure>
+  
+<p><strong>Dados além dos conhecidos</strong></p>
+<pre><code class=language-julia >using Printf
+
+Random.seed&#33;&#40;0&#41;
+mais_x &#61; x&#91;1:end&#93; .- &#40;x&#91;2&#93; - x&#91;1&#93;&#41; / 2
+mais_y &#61; 3mais_x .&#43; 5 &#43; randn&#40;length&#40;mais_x&#41;&#41; * 0.75
+
+p &#61; 9
+β &#61; regressao_polinomial&#40;x, y, p&#41;
+y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; mais_x&#93;
+
+xlin &#61; range&#40;extrema&#40;x&#41;..., length&#61;100&#41;
+ylin &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; xlin&#93;
+scatter&#40;x, y, leg&#61;false&#41;
+scatter&#33;&#40;mais_x, mais_y, c&#61;:red, ms&#61;5&#41;
+plot&#33;&#40;xlin, ylin, c&#61;:red, lw&#61;2&#41;
+
+R2 &#61; 1 - norm&#40;mais_y - y_pred&#41;^2 / norm&#40;mais_y .- y_med&#41;^2
+title&#33;&#40;@sprintf&#40;&quot;SQR &#61; &#37;6.4f, R2 &#61; &#37;6.4f&quot;, norm&#40;y_pred - mais_y&#41;^2, R2&#41;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin30&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin30.png" alt=""> 
+  </figure>
+  
+<h3 id="validação_cruzada_-_separação_em_treino_e_teste"><a href="#validação_cruzada_-_separação_em_treino_e_teste" class=header-anchor >Validação Cruzada - Separação em treino e teste</a></h3>
+<p>Separamos uma porcentagem dos dados para treinar o modelo e encontrar os parâmetros, e avaliamos o modelo sobre os dados restantes.</p>
+<pre><code class=language-julia >Random.seed&#33;&#40;0&#41;
+m &#61; 40
+#x &#61; sort&#40;rand&#40;m&#41;&#41;
+x &#61; range&#40;0, 1, length&#61;m&#41;
+#y &#61; 5 &#43; 3x - 2x.^2 &#43; randn&#40;m&#41; * 0.05
+y &#61; 6 .- 3 * sin.&#40;2π * x&#41; &#43; 7 * cos.&#40;2π * x&#41; &#43; randn&#40;m&#41; * 1.5
+scatter&#40;x, y, leg&#61;false&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin31&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin31.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >Random.seed&#33;&#40;0&#41;
+I &#61; randperm&#40;m&#41;
+x, y &#61; x&#91;I&#93;, y&#91;I&#93;
+k &#61; round&#40;Int, 0.6m&#41;
+x_tr, y_tr, x_te, y_te &#61; x&#91;1:k&#93;, y&#91;1:k&#93;, x&#91;k&#43;1:end&#93;, y&#91;k&#43;1:end&#93;
+
+p &#61; 6
+β &#61; regressao_polinomial&#40;x_tr, y_tr, p&#41; # Apenas o conjunto de treino é usado
+y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; x_te&#93;
+erro &#61; 0.5 * norm&#40;y_te - y_pred&#41;^2</code></pre><pre><code class=plaintext >29.518507782361347</code></pre>
+<pre><code class=language-julia >scatter&#40;leg&#61;false&#41;
+scatter&#33;&#40;x_tr, y_tr, c&#61;:blue&#41;
+plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * x^j for j &#61; 1:p&#41;, 0, 1.0, c&#61;:green, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin32&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin32.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;leg&#61;false&#41;
+scatter&#33;&#40;x_te, y_te, c&#61;:red&#41;
+plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * x^j for j &#61; 1:p&#41;, 0, 1.0, c&#61;:green, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin33&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin33.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >max_p &#61; 15
+erro_treino &#61; &#91;&#93;
+erro_teste &#61; &#91;&#93;
+for p &#61; 1:max_p
+    β &#61; regressao_polinomial&#40;x_tr, y_tr, p&#41;
+    xlin &#61; range&#40;0, 1, length&#61;100&#41;
+    y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; x&#93;
+    push&#33;&#40;erro_treino, 0.5 * norm&#40;y_tr - y_pred&#91;1:k&#93;&#41;^2 / k&#41;
+    push&#33;&#40;erro_teste, 0.5 * norm&#40;y_te - y_pred&#91;k&#43;1:end&#93;&#41;^2 / &#40;m - k&#41;&#41;
+end
+
+scatter&#40;1:max_p, erro_treino, c&#61;:blue, leg&#61;false, yaxis&#61;:log&#41;
+plot&#33;&#40;1:max_p, erro_treino, c&#61;:blue&#41;
+scatter&#33;&#40;1:max_p, erro_teste, c&#61;:red&#41;
+plot&#33;&#40;1:max_p, erro_teste, c&#61;:red&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin34&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin34.png" alt=""> 
+  </figure>
+  
+<h1 id="um_pouco_mais_sobre_a_visão_estatística"><a href="#um_pouco_mais_sobre_a_visão_estatística" class=header-anchor >Um pouco mais sobre a visão estatística</a></h1>
+<p>Suponha uma relação real \(y = \beta_0 + \beta_1 x + \epsilon\) onde \(\epsilon\) é um erro do tipo normal.</p>
+<pre><code class=language-julia >β &#61; &#91;3.0; 5.0&#93;
+σ &#61; 2.7
+plot&#40;x -&gt; β&#91;1&#93; &#43; β&#91;2&#93; * x, -2, 3, c&#61;:black, lw&#61;2, leg&#61;false&#41;</code></pre><pre><code class=plaintext >Plot{Plots.GRBackend() n=1}</code></pre>
+<p>uma amostra</p>
+<pre><code class=language-julia >n &#61; 1000
+x &#61; range&#40;-2, 3, length&#61;n&#41;
+y &#61; β&#91;1&#93; .&#43; β&#91;2&#93; * x &#43; randn&#40;n&#41; * σ
+scatter&#33;&#40;x, y, ms&#61;3, c&#61;:gray&#41;
+X &#61; &#91;ones&#40;n&#41; x&#93;
+βhat &#61; &#40;X&#39; * X&#41; \ &#40;X&#39; * y&#41;
+yhat &#61; X * βhat
+#yhat &#61; X * &#91;1.0; 9.0&#93;
+plot&#33;&#40;x, yhat, c&#61;:gray&#41;
+ylims&#33;&#40;-15, 25&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin35&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin35.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x, y - yhat, c&#61;:gray&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin36&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin36.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x * 0, y - yhat, c&#61;:gray&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin37&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin37.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >histogram&#40;x, y - yhat, bins&#61;20&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin38&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin38.png" alt=""> 
+  </figure>
+  
+<p>100 amostras</p>
+<pre><code class=language-julia >plot&#40;&#41;
+for t &#61; 1:1000
+    y &#61; β&#91;1&#93; .&#43; β&#91;2&#93; * x &#43; randn&#40;n&#41; * σ * 10
+    X &#61; &#91;ones&#40;n&#41; x&#93;
+    βhat &#61; &#40;X&#39; * X&#41; \ &#40;X&#39; * y&#41;
+    yhat &#61; X * βhat
+    plot&#33;&#40;x, yhat, c&#61;:gray&#41;
+end
+plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; β&#91;2&#93; * x, -2, 3, c&#61;:black, lw&#61;2, leg&#61;false&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin39&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin39.png" alt=""> 
+  </figure>
+  
+<h2 id=forma_matricial ><a href="#forma_matricial" class=header-anchor >Forma matricial</a></h2>
+<p>Com os vetores \(\overline{\phi}_1, \dots, \overline{\phi}\), podemos montar a matriz</p>
+\[ A = [\overline{\phi}_1 \cdots \overline{\phi}_n]. \]
+<p>Com essa matriz, podemos ver que \( A^TA = M\) e que \(A^Ty = c\). Ou seja, o sistema que queremos resolver é, na verdade</p>
+\[ A^TA\alpha = A^Tb, \]
+<p>ou seja, \(A^T(A\alpha - b) = 0\).</p>
+<p>Isso quer dizer que o sistema normal tem alguma relação com o sistema sobre-determinado \(A\alpha = b\). De fato, se pensarmos novamente no problema de minimizar aquela \(E(\alpha)\), cada termo dentro do somatório é uma linha de \(A\alpha - b\). Em outras palavras,</p>
+\[ E(\alpha) = \frac{1}{2}\sum_{i=1}^m (b - A\alpha)_i^2
+= \frac{1}{2}\Vert A\alpha - b\Vert^2. \]
+<p>De fato, se calculamos \(\nabla E(\alpha) = 0\), obtemos as equações normais. Isso generaliza o problema de quadrados mínimos. Esse problema aparece com frequência em outros contextos, e é bastante importante sabermos resolvê-lo eficientemente. Infelizmente, nesta disciplina, não teremos tempo de aprender como fazer isso de maneira eficiente.</p>
+<p>Note ainda que o resíduo é \(r = b - Ax\).</p>
+<h1 id="quadrados_mínimos_não-lineares"><a href="#quadrados_mínimos_não-lineares" class=header-anchor >Quadrados Mínimos Não-Lineares</a></h1>
+<p>Até agora supomos que o conjunto de dados \((x_i,y_i), i=1,\dots,m\) pode ser representado por uma função</p>
+\[f(x) = \alpha_1\phi_1(x) + \dots + \alpha_n\phi_n(x),\]
+<p>onde \(\alpha\) são as incógnitas que buscamos.</p>
+<p>No entanto, isso nem sempre é possível. Muitas vezes não temos uma forma para \(f\), sabemos apenas que depende de \(\alpha\).</p>
+<p>Um exemplo importante é o da lei de resfriamento. Se um objeto é deixado num ambiente com temperatura \(T_a\), ocorrendo apenas troca de temperatura com o ambiente, o objeto pode ter sua temperatura modelada por</p>
+\[ T(t) = T_a + \alpha_1 e^{\alpha_2 t}, \]
+<p>onde sabemos que \(\alpha_2 < 0\) pois \(T(t) \rightarrow T_a\) quando \(t \to \infty\).</p>
+<p>Exemplo</p>
+<pre><code class=language-julia >Ta &#61; 10
+T &#61; &#91;39.1262; 30.5367; 25.4514; 19.6129; 15.6515; 14.4767; 11.9281; 11.8655; 11.0895; 10.8207&#93;
+t &#61; &#91;0.0; 1.0; 2.0; 3.0; 4.0; 5.0; 6.0; 7.0; 8.0; 9.0&#93;
+scatter&#40;t, T&#41;
+plot&#33;&#40;t-&gt;Ta, c&#61;:green, l&#61;:dash&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin40&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
+  </figure>
+  
+<p>De uma maneira geral, podemos considerar um modelo \(\Phi(\alpha,x) = \alpha_1 \phi_1(x) + \dots + \alpha_n \phi_n(x)\) e considerar a minimização de</p>
+\[E(\alpha) = \sum_{i=1}^m [y_i - \Phi(\alpha,x_i)]^2.\]
+<p>No entanto, esse problema é bem mais complicado que o que vimos aqui.</p>
+<p>Felizmente, alguns casos podem ser <strong>linearizados</strong>.</p>
+<h2 id="quadrados_mínimos_não-lineares_linearizável"><a href="#quadrados_mínimos_não-lineares_linearizável" class=header-anchor >Quadrados Mínimos Não-Lineares Linearizável</a></h2>
+<p>Note o seguinte gráfico.</p>
+<pre><code class=language-julia >scatter&#40;t, T .- Ta, yaxis&#61;:log&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin40&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
+  </figure>
+  
+<p>Ou seja, embora os dados \((t_i,T_i)\) não possam ser aproximados por uma reta, os dados \((t_i,\ln (T_i - T_a))\) podem.</p>
+<pre><code class=language-julia >A &#61; &#91;ones&#40;10&#41; t&#93;
+α &#61; &#40;A&#39;*A&#41;\&#40;A&#39;*log.&#40;T .- Ta&#41;&#41;
+scatter&#40;t, log.&#40;T .- Ta&#41;, c&#61;:blue&#41;
+plot&#33;&#40;t, α&#91;1&#93; .&#43; α&#91;2&#93; * t, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin41&quot;&#41;&#41;</code></pre>
+<p>
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin41.png" alt=""> 
+  </figure>
+   Desse modo, estamos aproximando \(\ln(T_i - T_a) \approx \alpha_1 + \alpha_2 t_i\), de modo que</p>
+\[T(t) \approx T_a + e^{\alpha_1 + \alpha_2 t_i}  = T_a + \beta_1 e^{\alpha_2 t_i}, \]
+<p>onde \(\beta_1 = e^{\alpha_1}\).</p>
+<p>Mas se \(\alpha_1 + \alpha_2 x_i \approx \log y_i\), então \(y_i \approx e^{\alpha_1 + \alpha_2 x_i}\).</p>
+<pre><code class=language-julia >scatter&#40;t, T, ms&#61;3&#41;
+plot&#33;&#40;t-&gt;Ta &#43; exp.&#40;α&#91;1&#93; &#43; α&#91;2&#93; * t&#41;, c&#61;:red, lw&#61;2&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin42&quot;&#41;&#41;</code></pre>
+<p>
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin42.png" alt=""> 
+  </figure>
+   De fato, esse modelo parece ajustar muito bem os dados.</p>
+<p>Alguns dos modelos que podem ser linearizados estão abaixo:</p>
+\[ f(x) = \alpha_1e^{\alpha_2 x} \]
+\[ f(x) = \frac{1}{\alpha_1 + \alpha_2 x} \]
+\[ f(x) = \alpha_1 x^{\alpha_2} \]
+<p>Por exemplo, no primeiro caso \(f(x) = \alpha_1e^{\alpha_x 2}\), se \(y_i \approx f(x_i)\), então \(\ln y_i \approx \ln f(x_i)\). Mas</p>
+\[ \ln f(x) = \ln \alpha_1 + \alpha_2 x. \]
+<p>Isso quer dizer que \(g(x) = \beta_1 + \beta_2 x\) é um modelo linear para \((x_i,\ln y_i), i=1,\dots,m\). Podemos resolver o problema com o que já foi implementado, por exemplo, e depois obter \(\alpha_1 = e^{\beta_1}\) e \(\alpha_2 = \beta_2\).</p>
+<p>No caso \(f(x) = \alpha_1x^{\alpha_2}\), a transformação também é \(\ln f(x)\), obtendo</p>
+\[ \ln f(x) = \ln \alpha_1 + \alpha_2\ln x, \]
+<p>e aí \(g(x) = \beta_1 + \beta_2\ln x\) é um modelo para \((x_i,\ln y_i)\), ou \(h(x) = \beta_1 + \beta_2x\) é um modelo polinomial para \((\ln x_i,\ln y_i)\).</p>
+<p>No caso \(f(x) = \dfrac{1}{\alpha_1 + \alpha_2 x}\), a transformação é \(\dfrac{1}{f(x)}\).</p>
+<p>A pergunta nesses casos é, tendo os dados, como saber qual a linearização? Nesses casos, uma alternativa é tentar os gráficos das modificações. Além disso, algumas coisas proíbem alguns modelos. Em particular, se \(x\) é negativo, então \(\log(x)\) é proibido. Se \(y\) é negativo, então \(\log(y)\) é negativo.</p>
+<pre><code class=language-julia >x &#61; t
+y &#61; T .- Ta</code></pre><pre><code class=plaintext >10-element Vector{Float64}:
+ 29.126199999999997
+ 20.5367
+ 15.4514
+  9.6129
+  5.6515
+  4.476699999999999
+  1.9281000000000006
+  1.8655000000000008
+  1.0894999999999992
+  0.8207000000000004</code></pre>
+<p>Dados anteriores, do tipo αeᵝˣ</p>
+<pre><code class=language-julia >scatter&#40;x, log.&#40;y&#41;, ms&#61;3&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin43&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin43.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >scatter&#40;x, 1 ./ y, ms&#61;3&#41; # Ruim
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin44&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin44.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >x &#61; sort&#40;rand&#40;500&#41;*3 .&#43; 1&#41;
+y &#61; 2.1*x.^&#40;5.5&#41; .* &#40;1 .&#43; rand&#40;500&#41;*0.5&#41;
+scatter&#40;x, y, ms&#61;3&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin45&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin45.png" alt=""> 
+  </figure>
+  
+<h2 id="álgebra_linear_do_problema_de_quadrados_mínimos"><a href="#álgebra_linear_do_problema_de_quadrados_mínimos" class=header-anchor >Álgebra linear do problema de quadrados mínimos</a></h2>
+<p>Como vimos, estamos minimizando \(\Vert Ax -b \Vert\). Isso pode ser visto como \(\min \Vert y -x\Vert\) para \(y \in Im(A)\). Ou seja, estamos calculando a projeção de \(b\) na imagem de \(A\).</p>
+<p>Se \(b = y + z\), com \(y \in Im(A)\), então \(z \perp Im(A)\). Mas, \(Im(A)^{\perp} = Nu(A^T)\), de modo que \(z \in Nu(A^T)\). Em outras palavras, \(A^Tz = 0\). Como \(y \in Im(A)\), então existe \(u\) tal que \(y = Au\). Daí, temos \(b = Au + z\) com \(A^Tz = 0\). Sendo assim,</p>
+\[\Vert Ax - b\Vert^2
+= \Vert Ax - Au - z\Vert^2
+= \Vert A(x - u) - z\Vert^2
+= \Vert A(x - u)\Vert^2 + \Vert z\Vert^2,
+\]
+<p>onde a última igualdade segue de ortogonalidade. Portanto, a escolha que minimiza \(\Vert Ax - b\Vert\), é \(x = u\), já que \(\Vert z\Vert\) não pode ser modificado pela escolha de \(x\). Nisso, temos</p>
+\[r = b - Ax = Au + z - Au = z,\]
+<p>isto é, \(r\) é a projeção ortogonal de \(b\) no núcleo de \(A^T\).</p>
+<p>Note que, apesar de intepretação da projeção ortogonal, a solução \(x\) é o coeficiente dos vetores que gera a projeção.</p>
+<h2 id="exercícios"><a href="#exercícios" class=header-anchor >Exercícios</a></h2>
+<ul>
+<li><p>Faça os exercícios do capítulo 6 do livro Cálculo Numérico de Ruggiero e Lopes.</p>
+
+<li><p>Mostre que a matriz \(A^TA\) tem inversa se as colunas de \(A\) forem linearmente independentes. Dica: Mostre que \(\mathcal{N}(A) = \mathcal{N}(A^TA)\).</p>
+
+<li><p>Modele os dados abaixo,</p>
+<ul>
+<li><p>Utilizando o modelo \(\varphi(x) = \alpha_1 + \alpha_2 \sin(2\pi t) + \alpha_3 \cos(2\pi t)\);</p>
+
+<li><p>Utilizando o modelo \(\varphi(x) = \alpha_1 + \alpha_2 \sin(2\pi t) + \alpha_3 \cos(2\pi t) + \alpha_4 \sin(4\pi t) + \alpha_5 \cos(4\pi t)\);</p>
+
+<li><p>Compare os dois ajustes.</p>
+
+</ul>
+
+</ul>
+<p>| \(x\) | 0.000 | 0.125 | 0.250 |  0.375 |  0.500 | 0.625 | 0.750 | 0.875 | 1.000 | |-| | \(y\) | 7.500 | 6.200 | 2.700 | -0.800 | -0.500 | 1.600 | 4.100 | 6.500 | 7.200 |</p>
+<ul>
+<li><p><a href="https://pt.wikipedia.org/wiki/Predefini&#37;C3&#37;A7&#37;C3&#37;A3o:Tabela_clim&#37;C3&#37;A1tica_de_Curitiba">Nesta página</a> encontram-se as temperaturas médias de Curitiba de vários anos. Ajuste esses dados.</p>
+
+<li><p>O problema de quadrados mínimos \(\min \frac{1}{2}\Vert Ax - b\Vert^2\) pode ser visualizado como a projeção ortogonal de \(b\) na imagem de \(A\).</p>
+<ul>
+<li><p>O que acontece se \(b\) está na imagem de \(A\)?</p>
+
+<li><p>O que acontece se \(b\) é ortogonal à imagem de \(A\)?</p>
+
+<li><p>Qual seria o problema de quadrados mínimos para se encontrar a projeção ortogonal de \(b\) na imagem de \(A^T\)?</p>
+
+<li><p>Como \(Im(A)\) é um subespaço, podemos escrever \(b\) como a soma de um elemento de \(Im(A)\) e um elemento ortogonal à \(Im(A)\). Mostre quem é a solução e o resíduo do problema de quadrados mínimos em função dessa separação d</p>
+
+</ul>
+
+<li><p>Usando quadrados mínimos, encontre a projeção ortogonal de um vetor \(v\) sobre outro vetor \(w\).</p>
+
+<li><p>O que acontece se a matriz \(A\) tiver colunas ortogonais?</p>
+
+<li><p>O que acontece se a matriz \(A\) não tiver colunas linearmente independentes?</p>
+
+</ul>
+
+</div>
+</div>
+</div>
+
+<footer>
+<div class="container-fluid text-center social-footer">
+    <a href="mailto:abel.s.siqueira@gmail.com">
+        <i class="fas fa-2x fa-envelope" aria-hidden=true ></i>
+    </a><a href="https://github.com/abelsiqueira">
+        <i class="fab fa-2x fa-github-square" aria-hidden=true ></i>
+    </a><a href="https://linkedin.com/in/abel-siqueira/">
+        <i class="fab fa-2x fa-linkedin" aria-hidden=true ></i>
+    </a><a href="https://twitter.com/abel_siqueira">
+        <i class="fab fa-2x fa-twitter-square" aria-hidden=true ></i>
+    </a><a href="https://www.researchgate.net/profile/Abel_Siqueira">
+        <i class="fab fa-2x fa-researchgate" aria-hidden=true ></i>
+    </a><a href="http://orcid.org/0000-0003-4451-281X">
+        <i class="fab fa-2x fa-orcid" aria-hidden=true ></i>
+    </a>
+</div>
+</footer>
+
+
+<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
+<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+
+
+<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+
+<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>
