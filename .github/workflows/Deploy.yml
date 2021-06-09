@@ -31,14 +31,12 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.6
-    # NOTE
-    #   The steps below ensure that NodeJS and Franklin are loaded then it
-    #   installs highlight.js which is needed for the prerendering step
-    #   (code highlighting + katex prerendering).
-    #   Then the environment is activated and instantiated to install all
-    #   Julia packages which may be required to successfully build your site.
-    #   The last line should be `optimize()` though you may want to give it
-    #   specific arguments, see the documentation or ?optimize in the REPL.
+    - name: Clone abelsiqueira.github.io
+      run:
+        - wget https://github.com/abelsiqueira/abelsiqueira.github.io/archive/refs/heads/main.zip
+        - unzip main.zip
+        - mv abelsiqueira.github.io-main/_layout .
+        - mv abelsiqueira.github.io-main/_css .
     - run: julia -e '
             using Pkg; Pkg.activate("."); Pkg.instantiate();
             using NodeJS; run(`$(npm_cmd()) install highlight.js`);
