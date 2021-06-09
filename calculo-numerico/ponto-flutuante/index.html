@@ -1,0 +1,479 @@
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Aritmética de Ponto Flutuante</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="aritmética_de_ponto_flutuante"><a href="#aritmética_de_ponto_flutuante" class=header-anchor >Aritmética de Ponto Flutuante</a></h1> <p>Os objetivos desta lição são</p> <ul> <li><p>Aprender sobre a representação de números naturais e inteiros na máquina;</p> <li><p>Aprender sobre Aritmética de Ponto Flutuante.</p> </ul> <h2 id="representação_de_inteiros_na_máquina"><a href="#representação_de_inteiros_na_máquina" class=header-anchor >Representação de Inteiros na máquina</a></h2> <p>Os computadores guardam inteiros de maneiras bastante específicas. Essas maneiras envolvem os bits de um computador, que matematicamente equivalem a números binários. Um bit pode estar ligado ou desligado, ou seja, \(1\) ou \(0\). Um inteiro de \(n\) bits terá \(n\) posições ordenadas que podem estar ligadas ou desligadas. Dessa maneira, é possível representar até \(2^n\) inteiros com \(n\) bits. A pergunta é quais \(2^n\) inteiros?</p> <p>Muitas vezes nos preocupamos apenas com os inteiros positivos, então uma escolha bastante simples seria os inteiros de \(0\) à \(2^n-1\). Esse tipo é dito &quot;sem sinal&quot; ou &quot;Unsigned&quot; em inglês. Em Julia, são os tipos <code>UIntN</code>, onde \(N\) é o número de bits \((8, 16, 32, 64, 128)\).</p> <p>Para inteiros positivos e negativos, uma maneira é guardar os númeos de \(-2^{n-1}\) à \(2^{n-1}-1\). Em binário, podemos escolher os \(n-1\) bits da direita para fazer uma contagem de \(0\) à \(2^{n-1}-1\), e o bit mais à esquerda para indicar de começamos a contar de \(-2^{n-1}\) ou de \(0\).</p> <h3 id=exemplo_com_n_3 ><a href="#exemplo_com_n_3" class=header-anchor >Exemplo com n &#61; 3</a></h3> <pre><code class=language-julia >Bin Dec
+––– –––
+000   0
+001   1
+010   2
+011   3
+100  -4
+101  -3
+110  -2
+111  -1</code></pre> <p>Note que o problema de trabalhar com inteiros que caiam fora deste intervalo está nas operações básicas mesmo:</p> <pre><code class=language-julia >3 &#43; 1 &#40;em decimal&#41;
+
+         1     1
+ 011    011    011    011
+ 001    001    001    001
+----   ----   ----   ----
+   ?      0     00    100</code></pre> <p>Mas \(100\) nessa representação significa \(-4\), ou seja, a soma &quot;dá a volta&quot;.</p> <h3 id="exemplo_com_n_64_o_padrão"><a href="#exemplo_com_n_64_o_padrão" class=header-anchor >Exemplo com n &#61; 64 &#40;o padrão&#41;</a></h3> <p>O inteiro <code>Int64</code> vai de \(-2^{63}\) à \(2^{63}-1\).</p> <pre><code class=language-julia >x &#61; 2^63-1</code></pre><pre><code class=plaintext >9223372036854775807</code></pre>
+<pre><code class=language-julia >x &#43; 1</code></pre><pre><code class=plaintext >-9223372036854775808</code></pre>
+<pre><code class=language-julia >-x</code></pre><pre><code class=plaintext >-9223372036854775807</code></pre>
+<pre><code class=language-julia >-x - 2</code></pre><pre><code class=plaintext >9223372036854775807</code></pre>
+<pre><code class=language-julia >-&#40;x&#43;1&#41;  # &#61; x &#43; 1??</code></pre><pre><code class=plaintext >-9223372036854775808</code></pre>
+<pre><code class=language-julia >x * x</code></pre><pre><code class=plaintext >1</code></pre>
+<pre><code class=language-julia >y &#61; 2^62</code></pre><pre><code class=plaintext >4611686018427387904</code></pre>
+<pre><code class=language-julia >y * y</code></pre><pre><code class=plaintext >0</code></pre>
+<pre><code class=language-julia >x * y</code></pre><pre><code class=plaintext >-4611686018427387904</code></pre>
+<pre><code class=language-julia >&#40;BigInt&#40;2&#41;^63&#41;^2</code></pre><pre><code class=plaintext >85070591730234615865843651857942052864</code></pre>
+<p>Embora os valores máximos dos inteiros de 64 bits pareçam bastante grandes, eles podem ser alcançados com relativa facilidade.</p>
+<pre><code class=language-julia >factorial&#40;20&#41;</code></pre><pre><code class=plaintext >2432902008176640000</code></pre>
+<pre><code class=language-julia >factorial&#40;20&#41; * 21</code></pre><pre><code class=plaintext >-4249290049419214848</code></pre>
+<pre><code class=language-julia >factorial&#40;20&#41; * 21 * 22 * 23</code></pre><pre><code class=plaintext >8128291617894825984</code></pre>
+<h3 id=bigint ><a href="#bigint" class=header-anchor >BigInt</a></h3>
+<p>Apesar do limite dos inteiros, muitas vezes queremos utilizar valores inteiros absurdamente grandes. Para isso existem implementações de números inteiros grandes - BigInts, para encurtar - que permitem, a priori, qualquer número inteiro. É importante notar a diferença entre um BigInt e um inteiro nativo. O BigInt sempre vem de uma implementação, enquanto que o inteiro nativo &quot;existe&quot; no processador. Todas as contas com BigInt serão mais lentas que em inteiros nativos, então não podemos simplesmente usar BigInt para tudo.</p>
+<pre><code class=language-julia >factorial&#40;big&quot;21&quot;&#41;</code></pre><pre><code class=plaintext >51090942171709440000</code></pre>
+<pre><code class=language-julia >log2&#40;4 * 10^&#40;20&#41;&#41;</code></pre><pre><code class=plaintext >DomainError with -5.828369621610136e18:
+NaN result for non-NaN input.
+</code></pre>
+<pre><code class=language-julia >log2&#40;4 * BigInt&#40;10&#41;^&#40;20&#41;&#41;</code></pre><pre><code class=plaintext >68.43856189774724695740638858978780351729662786049161224109512791631869553217235</code></pre>
+<pre><code class=language-julia >big&quot;2&quot;^300</code></pre><pre><code class=plaintext >2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397376</code></pre>
+<pre><code class=language-julia >factorial&#40;big&quot;30&quot;&#41;</code></pre><pre><code class=plaintext >265252859812191058636308480000000</code></pre>
+<h2 id="introdução_à_pontos_flutuantes"><a href="#introdução_à_pontos_flutuantes" class=header-anchor >Introdução à pontos flutuantes</a></h2>
+<p>Nem só de inteiros vive o homem. Vamos falar sobre números de ponto flutuante na máquina, que é como representamos números reais &#40;spoiler: só um subconjunto dos racionais, como veremos a seguir&#41;.</p>
+<p>Um número em ponto flutuante é da forma \(\pm 0.\text{mantissa} \times \text{base}^\text{expoente},\) onde a mantissa é uma sequência de dígitos entre \(0\) e a base menos \(1\).</p>
+<h3 id=exemplos ><a href="#exemplos" class=header-anchor >Exemplos</a></h3>
+\[234 = 0.234 \times 10^3 \]
+\[-12.5 = -.125 \times 10^2 \]
+\[0.001 = 0.1 \times 10^{-2} \]
+\[(101)2 = (0.101)2 \times 2^3. \]
+<p>Veja que a notação é muito parecida com a notação científica.</p>
+<p>Números em ponto flutuante são armazenados numa quantidade finita de bits - normalmente, \(64\) bits. A base escolhida é a base \(2\), e tanto a mantissa quando o expoente são armazenados nesses \(64\) bits. O tipo em Julia que representa pontos flutuante de \(64\) bits é o <code>Float64</code>. Também existem o <code>Float16</code> e o <code>Float32</code>, que usam \(16\) e \(32\) bits, respectivamente.</p>
+<p>Lembre-se que os números \(5\) e \(6\) em binário são \(101\) e \(110\).</p>
+<pre><code class=language-julia >bitstring&#40;5.0&#41;</code></pre><pre><code class=plaintext >"0100000000010100000000000000000000000000000000000000000000000000"</code></pre>
+<pre><code class=language-julia >bitstring&#40;6.0&#41;</code></pre><pre><code class=plaintext >"0100000000011000000000000000000000000000000000000000000000000000"</code></pre>
+<p>As primeiras casas indicam o expoente, e as últimas indicam a mantissa.</p>
+<p>Existem vários detalhes da implementação de ponto flutuante que iremos deixar de lado. Vamos olhar apenas de uma maneira mais simples a parte teórica.</p>
+<p>Note que teremos limitações para a mantissa e expoente. Em particular, na base \(10\), pensaremos que a mantissa tem uma limitação no número de dígitos depois da vírgula, e o expoente estará limitada entre valores \(L\) e \(U\) como \(L
+\leq E \leq U\). Note que isso implica que existem valores máximos e mínimos.</p>
+<p>Por exemplo, com \(3\) dígitos na mantissa e um expoente limitado por \(-3 \leq E
+\leq 4\), o máximo será \( X{\max} = 0.999 \times 10^4 \approx 10^4, \) o menor número positivo será \( X{\min} = 0.001 \times 10^{-3} = 10^{-6}. \)</p>
+<p>O conjunto dos números de pontos flutuante não abrange todas as possibilidades de números que poderiam ser representados com a quantidade de bits dada. Por exemplo, \(0\times 10^n\) ainda é zero, independente do \(n\). Sendo assim, existem várias sequências de bits &quot;livres&quot;, que podem ser usados para representar outras coisas. Em particular, nos pontos flutuantes é possível representar um valor infinito:</p>
+<pre><code class=language-julia >Inf</code></pre><pre><code class=plaintext >Inf</code></pre>
+<pre><code class=language-julia >Inf &gt; 1e300</code></pre><pre><code class=plaintext >true</code></pre>
+<pre><code class=language-julia >1 / Inf</code></pre><pre><code class=plaintext >0.0</code></pre>
+<pre><code class=language-julia >Inf &#43; Inf</code></pre><pre><code class=plaintext >Inf</code></pre>
+<p>e também um valor que indica que a operação realizada contém alguma incoerência, o NotANumber, ou NaN.</p>
+<pre><code class=language-julia >NaN</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >0 / 0</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >Inf - Inf</code></pre><pre><code class=plaintext >NaN</code></pre>
+<p>Cuidado: O NaN é contagioso. Se ao programar você encontrar um NaN, você deve examinar seu código, descobrir o que está causando ele, e evitar esse problema.</p>
+<pre><code class=language-julia >NaN &#43; 1</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >NaN - NaN</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >1 / NaN</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >2 &gt; NaN</code></pre><pre><code class=plaintext >false</code></pre>
+<pre><code class=language-julia >2 &lt; NaN</code></pre><pre><code class=plaintext >false</code></pre>
+<pre><code class=language-julia >2 &#61;&#61; NaN</code></pre><pre><code class=plaintext >false</code></pre>
+<pre><code class=language-julia >0.0 ^ 0.0</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >1.0^Inf</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >1.0^NaN</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >Inf^NaN</code></pre><pre><code class=plaintext >NaN</code></pre>
+<pre><code class=language-julia >Inf^&#40;1/Inf&#41;</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >1 / &#40;-1 / Inf&#41;</code></pre><pre><code class=plaintext >-Inf</code></pre>
+<h3 id="representação_gráfica_dos_floats"><a href="#representação_gráfica_dos_floats" class=header-anchor >Representação gráfica dos floats</a></h3>
+<p>Abaixo, veremos todos os números em ponto flutuante &#40;ou o que dá pra ver&#41;.</p>
+<p>Para cada ponto em azul, a abscissa corresponde à um ponto flutuante, e ordenada desse ponto é a distância entre um ponto e o ponto imediatamente antes dele.</p>
+<pre><code class=language-julia >using Plots
+gr&#40;size&#61;&#40;600,400&#41;&#41;
+
+x &#61; Float16&#40;0.0&#41;
+X &#61; Float16&#91;0.0&#93;
+D &#61; Float16&#91;0.0&#93;
+while x &lt; Inf
+    y &#61; nextfloat&#40;x&#41;
+    y &#61;&#61; Inf &amp;&amp; break
+    d &#61; y - x
+    x &#61; y
+    push&#33;&#40;X, x&#41;
+    push&#33;&#40;D, d&#41;
+end
+
+scatter&#40;X, D, ms&#61;1, m&#61;&#40;stroke&#40;0&#41;&#41;, leg&#61;false&#41;
+yticks&#33;&#40;2 .^ &#40;0:5&#41;&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig1&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig1.png" alt=""> 
+  </figure>
+  
+<p>Veja que as distância são as potências de 2.</p>
+<p>A base tradicionalmente é \(2\) nos computadores, e os bits atribuídos a um número desses é separado em uma parte para a mantissa e outra para o expoente. Em particular, com \(64\) bits, usamos \(53\) dígitos para a mantissa e \(11\) para o expoente. Um dos bits da mantissa guarda o sinal do elemento.</p>
+<p>Um aspecto essencial dos pontos flutuantes é que eles representam apenas uma quantidade finita de pontos, e como a quantidade dígitos depois da vírgula da mantissa também é finita, apenas os racionais podem ser representados.</p>
+<p>Mais do que isso, dízimas períodicas são truncadas. Por exemplo, \(1/3\) seria aproximado por \(0.66...67\) para alguma quantidade de dígitos \(6\).</p>
+<p>No entanto, no computador usamos a base \(2\), e alguns números que não são dízimas na base \(10\) podem ser dízimas na base \(2\). Por exemplo, \(0.1\).</p>
+<p>Veja que </p>
+\[S = 1 + \frac{1}{2^4} + \frac{1}{2^8} + \frac{1}{2^{12}} + \dots =
+\frac{1}{1 - 2^{-4}} = \frac{16}{15}.\]
+<p>Daí, </p>
+\[\frac{1}{2^4}(S + \tfrac{1}{2}S)
+= \frac{1}{16}\times\frac{24}{15} = \frac{1}{10}.\]
+<p>Por outro lado, \((S)_2 = 1.0001000100010001\dots\), então</p>
+\[\frac{1}{10} =
+\frac{1}{2^4}(1.000100010\dots + 0.100010001\dots) =
+\frac{1}{2^4}(1.100110011\dots) = 0.000110011001100\dots\]
+<pre><code class=language-julia >using Printf
+
+@printf&#40;&quot;&#37;20.18f\n&quot;, 0.1&#41;</code></pre><pre><code class=plaintext >0.100000000000000006
+</code></pre>
+<pre><code class=language-julia >bitstring&#40;0.1&#41;</code></pre><pre><code class=plaintext >"0011111110111001100110011001100110011001100110011001100110011010"</code></pre>
+<p>Apesar de não parecer muito, essa pequena diferença levará a erros como o abaixo:</p>
+<pre><code class=language-julia >a &#61; &#40;0.1 &#43; 0.2&#41;
+b &#61; 0.3</code></pre><pre><code class=plaintext >0.3</code></pre>
+<pre><code class=language-julia >abs&#40;b - a&#41;</code></pre><pre><code class=plaintext >5.551115123125783e-17</code></pre>
+<pre><code class=language-julia >abs&#40;b - a&#41; / a</code></pre><pre><code class=plaintext >1.850371707708594e-16</code></pre>
+<pre><code class=language-julia >&#40;0.1 &#43; 0.2 - 0.3&#41; * 2^50</code></pre><pre><code class=plaintext >0.0625</code></pre>
+<pre><code class=language-julia >1e-17 * 2^50</code></pre><pre><code class=plaintext >0.01125899906842624</code></pre>
+<pre><code class=language-julia >bitstring&#40;0.1 &#43; 0.2&#41;</code></pre><pre><code class=plaintext >"0011111111010011001100110011001100110011001100110011001100110100"</code></pre>
+<pre><code class=language-julia >bitstring&#40;0.3&#41;</code></pre><pre><code class=plaintext >"0011111111010011001100110011001100110011001100110011001100110011"</code></pre>
+<h2 id="aritmética_de_ponto_flutuante__2"><a href="#aritmética_de_ponto_flutuante__2" class=header-anchor >Aritmética de Ponto Flutuante</a></h2>
+<p>Além do armazenamento, também é importante definir a aritmética de ponto flutuante.</p>
+<p>Dado dois números armazenados na mesma base, a operação de soma ou subtração entre os dois ocorre da seguinte forma:</p>
+<ol>
+<li><p>Entrada: dois numeros \(x_1 = M_1 \times \beta^{E_1}\) e \(x_2 = M_2 \times \beta^{E_2}\).</p>
+
+<li><p>Calcule o maior expoente \(E = max(E_1, E_2)\)</p>
+
+<li><p>Escreva os dois números usando este expoente</p>
+
+</ol>
+\[ x_1 = (M_1 \times \beta^{E_1 - E}) \times \beta^E \]
+\[ x_2 = (M_2 \times \beta^{E_2 - E}) \times \beta^E \]
+<ol start=4 >
+<li><p>Some os dois</p>
+
+</ol>
+\[ x_3 = x_1 + x_2 = (M_1 \times \beta^{E_1 - E} + M_2 \times \beta^{E_2 - E}) \times \beta^E \]
+<ol start=5 >
+<li><p>Calcule a mantissa \(M_3\) e expoente \(E_3\) do número novo \(x_3 = M_3 \times \beta^{E_3}\).</p>
+
+</ol>
+<p>Observe, no entanto, que como a mantissa e o expoente são guardados usando uma quantidade finita de bits, então podemos acabar perdendo informação.</p>
+<p>Vamos fazer uma simulação dessa operação uma mantissa de 3 dígitos além da vírgula, e um expoente com limitantes \(-5 \leq E \leq 4\), na base 10.</p>
+<pre><code class=language-julia >34.12  &#43;  8.256
+
+3.412 × 10¹ &#43; 8.256 × 10⁰
+3.412 × 10¹ &#43; 0.8256 × 10¹
+&#40;3.412 &#43; 0.8256&#41; × 10¹
+4.2376 × 10¹
+4.238 × 10¹  Armazenado
+42.38</code></pre>
+<p>Essa perda de dígitos é chamado de erro de arredondamento.</p>
+<p>Em alguns casos, esse erro pode fazer com que um dos números somados seja tratado como zero.</p>
+<pre><code class=language-julia >2351 &#43; 0.01234
+
+2.351 × 10³ &#43; 1.234 × 10⁻²
+2.351 × 10³ &#43; 0.00001234 × 10³
+&#40;2.351 &#43; 0.00001234&#41; × 10³
+2.35101234 × 10³
+2.351 × 10³  Armazenado
+2351</code></pre>
+<p>&#61;</p>
+<p>No armazenamento IEEE754, é um pouco mais complicado chegar nos valores máximos e mínimos, mas eles ainda existem. Em particular, podemos usar o código abaixo para calcular qual o menor número positivo que é tratado como 0 quando somado à 1.</p>
+<pre><code class=language-julia >1.0 &#43; 1e-18</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >ϵ &#61; 1.0
+while 1.0 &#43; ϵ &gt; 1.0
+    ϵ &#61; ϵ/2
+end
+ϵ &#61; 2ϵ</code></pre><pre><code class=plaintext >2.220446049250313e-16</code></pre>
+<pre><code class=language-julia >eps&#40;Float64&#41;</code></pre><pre><code class=plaintext >2.220446049250313e-16</code></pre>
+<pre><code class=language-julia >eps&#40;Float16&#41;</code></pre><pre><code class=plaintext >Float16(0.000977)</code></pre>
+<pre><code class=language-julia >eps&#40;0.3 * 2^50&#41;</code></pre><pre><code class=plaintext >0.0625</code></pre>
+<p>Esse número é chamado de precisão da máquina, e às vezes denotado por \(\epsilon_{\text{machine}}\). Para todo número real x, existe um número x&#39; em ponto flutuante tal que \( |x - x'| \leq \epsilon_{\text{machine}}|x|. \)</p>
+<pre><code class=language-julia >eps&#40;0.3&#41;</code></pre><pre><code class=plaintext >5.551115123125783e-17</code></pre>
+<pre><code class=language-julia >0.1 &#43; 0.2 - 0.3</code></pre><pre><code class=plaintext >5.551115123125783e-17</code></pre>
+<pre><code class=language-julia >prevfloat&#40;Inf&#41;</code></pre><pre><code class=plaintext >1.7976931348623157e308</code></pre>
+<pre><code class=language-julia >nextfloat&#40;0.0&#41;</code></pre><pre><code class=plaintext >5.0e-324</code></pre>
+<p>A multiplicação é mais simples. Os expoentes são somados, as mantissas multiplicadas, e os valores são arredondados e ajustados de modo a ficar na forma de ponto flutuante. Análogo para divisão.</p>
+<p>Nos pontos flutuantes de \(64\) bits &#40;<code>Float64</code> no Julia&#41;, o maior valor representável nessa base é por volta de \(10^{308}\) e o menor positivo é \(5\times10^{-324}\). Diferente do que acontece com inteiros, quando fazemos alguma coisa que ultrapassa o maior valor, nós temos o chamado overflow. Denotaremos o número como \(\infty\) &#40;infinito&#41;, ou Inf em Julia. Se algum cálculo resultar em um valor positivo que o menor valor positivo, obtemos um chamado underflow, e o valor é considerado \(0\).</p>
+<p>Denotamos por \(\text{fl}(x)\) o número em ponto flutuante mais próximo do real x. Temos que para cada \(x \in \mathbb{R}\), existe \(\epsilon\) tal que \(|\epsilon|
+\leq \epsilon_{\text{machine}}\) e \(\text{fl}(x) = x(1+\epsilon)\).</p>
+<p>Como não estamos trabalhando nos reais &#40;às vezes escrevemos \(\mathbb{F}\)&#41;, então as operações básicas não estão mais definidas como antes. Por exemplo, \(\text{fl}(1) = 1\) e \(\text{fl}(10) = 10\), mas \(1/10 \neq \text{fl}(1/10)\).</p>
+<p>Sendo assim, redefinimos as operações de soma, subtração, divisão e multiplicação. Seja \(\ast\) uma das operações \(+, -, \times, \div\), e seja \(\circledast\) a operação correspondente em ponto flutuante, dada por \( x
+\circledast y = \text{fl}(x \ast y). \)</p>
+<p>Se pudermos definir um computador com as operações acima, teremos o chamado Axioma Fundamental da Aritmética de Ponto Flutuante: Para todo \(x, y \in
+\mathbb{F}\), existe \(\epsilon com |\epsilon| \leq \epsilon_{\text{machine}}\) tal que \( x \circledast y = (x \ast y)(1 + \epsilon). \)</p>
+<p>Note que a soma não é associativa.</p>
+<pre><code class=language-julia >&#40;1.0 &#43; 1e-16&#41; &#43; 1e-16 &#61;&#61; 1.0 &#43; &#40;1e-16 &#43; 1e-16&#41;</code></pre><pre><code class=plaintext >false</code></pre>
+<pre><code class=language-julia >&#40;&#40;1.0 &#43; 1e-16&#41; &#43; 1e-16&#41;</code></pre><pre><code class=plaintext >1.0</code></pre>
+<pre><code class=language-julia >&#40;1.0 &#43; &#40;1e-16 &#43; 1e-16&#41;&#41;</code></pre><pre><code class=plaintext >1.0000000000000002</code></pre>
+<pre><code class=language-julia >&#40;&#40;1.0 &#43; 1e-16&#41; &#43; 1e-16&#41; - &#40;1.0 &#43; &#40;1e-16 &#43; 1e-16&#41;&#41;</code></pre><pre><code class=plaintext >-2.220446049250313e-16</code></pre>
+<p>Por isso é bastante importante ter noção dos erros que estão acontecendo, para pensar na melhor maneira de se fazer certos cálculos.</p>
+\[\frac{d}{dx}\bigg(\sqrt{x}\bigg)\bigg|{x=a} = \lim{h\to 0} \frac{\sqrt{a +
+h} - \sqrt{a}}{h} \approx \frac{\sqrt{a + h} - \sqrt{a}}{h},\]
+<p>para algum \(h\) pequeno e positivo.</p>
+<pre><code class=language-julia >a &#61; 1.0
+for h &#61; 10.0 .^ &#40;-2:-1:-15&#41;
+  v &#61; &#40;sqrt&#40;a &#43; h&#41; - sqrt&#40;a&#41;&#41; / h
+  println&#40;&quot;h &#61; &#36;h, √&#36;a ≈ &#36;v, erro &#61; &#36;&#40;v - 0.5&#41;&quot;&#41;
+end</code></pre><pre><code class=plaintext >h = 0.01, √1.0 ≈ 0.498756211208895, erro = -0.0012437887911049827
+h = 0.001, √1.0 ≈ 0.4998750624609638, erro = -0.0001249375390361962
+h = 0.0001, √1.0 ≈ 0.49998750062396624, erro = -1.2499376033758836e-5
+h = 9.999999999999999e-6, √1.0 ≈ 0.49999875000317223, erro = -1.2499968277679407e-6
+h = 1.0e-6, √1.0 ≈ 0.4999998750587764, erro = -1.2494122358930326e-7
+h = 1.0e-7, √1.0 ≈ 0.4999999880794803, erro = -1.1920519682462327e-8
+h = 1.0e-8, √1.0 ≈ 0.4999999969612645, erro = -3.038735485461075e-9
+h = 1.0e-9, √1.0 ≈ 0.5000000413701855, erro = 4.137018549954519e-8
+h = 1.0e-10, √1.0 ≈ 0.5000000413701855, erro = 4.137018549954519e-8
+h = 1.0000000000000001e-11, √1.0 ≈ 0.5000000413701855, erro = 4.137018549954519e-8
+h = 1.0e-12, √1.0 ≈ 0.5000444502911705, erro = 4.445029117050581e-5
+h = 1.0e-13, √1.0 ≈ 0.49960036108132044, erro = -0.0003996389186795568
+h = 1.0e-14, √1.0 ≈ 0.4884981308350689, erro = -0.011501869164931122
+h = 1.0e-15, √1.0 ≈ 0.44408920985006256, erro = -0.05591079014993744
+</code></pre>
+<p>A aproximação ficou ruim quando \(h\) aumenta muito. Mas veja que</p>
+\[\frac{\sqrt{a + h} - \sqrt{a}}{h} = \frac{a + h - a}{h(\sqrt{a + h} + \sqrt{a})} = \frac{1}{\sqrt{a + h} + \sqrt{a}}.\]
+<pre><code class=language-julia >for h &#61; 10.0 .^ &#40;-2:-1:-15&#41;
+  v &#61; 1 / &#40;sqrt&#40;a &#43; h&#41; &#43; sqrt&#40;a&#41;&#41;
+  println&#40;&quot;h &#61; &#36;h, √&#36;a ≈ &#36;v, erro &#61; &#36;&#40;v - 0.5&#41;&quot;&#41;
+end</code></pre><pre><code class=plaintext >h = 0.01, √1.0 ≈ 0.4987562112089027, erro = -0.0012437887910973222
+h = 0.001, √1.0 ≈ 0.49987506246096475, erro = -0.0001249375390352525
+h = 0.0001, √1.0 ≈ 0.49998750062496095, erro = -1.2499375039054517e-5
+h = 9.999999999999999e-6, √1.0 ≈ 0.49999875000625, erro = -1.2499937500076719e-6
+h = 1.0e-6, √1.0 ≈ 0.49999987500006243, erro = -1.249999375674271e-7
+h = 1.0e-7, √1.0 ≈ 0.49999998750000063, erro = -1.24999993689201e-8
+h = 1.0e-8, √1.0 ≈ 0.49999999875, erro = -1.2499999924031613e-9
+h = 1.0e-9, √1.0 ≈ 0.499999999875, erro = -1.2500001034254637e-10
+h = 1.0e-10, √1.0 ≈ 0.4999999999875, erro = -1.2500001034254637e-11
+h = 1.0000000000000001e-11, √1.0 ≈ 0.49999999999875, erro = -1.2500001034254637e-12
+h = 1.0e-12, √1.0 ≈ 0.499999999999875, erro = -1.2501111257279263e-13
+h = 1.0e-13, √1.0 ≈ 0.49999999999998757, erro = -1.2434497875801753e-14
+h = 1.0e-14, √1.0 ≈ 0.4999999999999988, erro = -1.2212453270876722e-15
+h = 1.0e-15, √1.0 ≈ 0.4999999999999999, erro = -1.1102230246251565e-16
+</code></pre>
+<pre><code class=language-julia >using Plots
+gr&#40;size&#61;&#40;600,400&#41;&#41;
+
+Ap1&#40;h&#41; &#61; max&#40;0.5 - &#40;sqrt&#40;1.0 &#43; h&#41; - sqrt&#40;1.0&#41;&#41; / h, eps&#40;Float64&#41; / 2&#41;
+Ap2&#40;h&#41; &#61; max&#40;0.5 - 1 / &#40;sqrt&#40;1.0 &#43; h&#41; &#43; sqrt&#40;1.0&#41;&#41;, eps&#40;Float64&#41; / 2&#41;
+valores_h &#61; &#91;2.0^p for p &#61; range&#40;-50, -10, length&#61;100&#41;&#93;
+
+plot&#40;valores_h, fill&#40;0.5, length&#40;valores_h&#41;&#41;, c&#61;:black, l&#61;:dash, lab&#61;&quot;Exato&quot;&#41;
+plot&#40;xaxis&#61;:log, yaxis&#61;:log&#41;
+scatter&#33;&#40;valores_h, Ap1.&#40;valores_h&#41;, c&#61;:red, lab&#61;&quot;Ruim&quot;, ms&#61;3&#41;
+scatter&#33;&#40;valores_h, Ap2.&#40;valores_h&#41;, c&#61;:blue, lab&#61;&quot;Boa&quot;, ms&#61;3&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-sqrt.png" alt=""> 
+  </figure>
+  
+<p>Perceba que alguns ponto do &quot;Ruim&quot; na verdade tem um erro nulo. Isso acontece quando o ponto flutuante coincide com o valor real.</p>
+<h2 id="precisão_arbitrária"><a href="#precisão_arbitrária" class=header-anchor >Precisão Arbitrária</a></h2>
+<p>Da mesma maneira que às vezes queremos trabalhar com inteiros maiores que o máximo da máquina, às vezes também estamos interessados em pontos flutuantes com mais precisão que os da máquina. Em Julia, são chamados de <code>BigFloat</code>.</p>
+<pre><code class=language-julia >BigFloat&#40;pi&#41;</code></pre><pre><code class=plaintext >3.141592653589793238462643383279502884197169399375105820974944592307816406286198</code></pre>
+<pre><code class=language-julia >big&quot;0.1&quot;</code></pre><pre><code class=plaintext >0.1000000000000000000000000000000000000000000000000000000000000000000000000000002</code></pre>
+<pre><code class=language-julia >sqrt&#40;2.0&#41;^2 - 2.0</code></pre><pre><code class=plaintext >4.440892098500626e-16</code></pre>
+<pre><code class=language-julia >sqrt&#40;big&quot;2.0&quot;&#41;^2 - big&quot;2.0&quot;</code></pre><pre><code class=plaintext >-1.727233711018888925077270372560079914223200072887256277004740694033718360632485e-77</code></pre>
+<pre><code class=language-julia >nextfloat&#40;big&quot;0.0&quot;&#41;  # Menor positivo</code></pre><pre><code class=plaintext >8.50969131174083613912978790962048280567755996982969624908264897850135431080301e-1388255822130839284</code></pre>
+<pre><code class=language-julia >prevfloat&#40;big&quot;Inf&quot;&#41;</code></pre><pre><code class=plaintext >5.875653789111587590936911998878442589938516392745498308333779606469323584389875e+1388255822130839282</code></pre>
+<p>Diferente dos BigInts, os BigFloats não crescem automaticamente. Devemos usar a função abaixo para escolher a precisão do mesmo.</p>
+<pre><code class=language-julia >setprecision&#40;2^15&#41;
+nextfloat&#40;big&quot;0.0&quot;&#41; # Menor positivo</code></pre><pre><code class=plaintext >8.5096913117408361391297879096204828056775599698296962490826489785013543108030103771278165386353317620704130767771946562559026156433332537145745402331672804683903109232833471098456927411402685544548421277607911887519810237948503471262142527389950787266291706218105267428796597354853121980182265849747542618412972073935626020626168703414166862147187576257610820418103172242747282280110293699985523980872105124839855544891666484959632529425404531648783741698930613396881448147549696925760467797239262081688080101310457524666166125887562250196913689940032097972244924608958882234996602229680184487691114034420493943934932587695954476721368819230300741841117043601669208343514262350647529439616868286991808784145918662737120921038215917541020545201710187675034047102692685715341083740429387772525835484766472962299386772834854911467765862057547337481276113706146382515688710937681913032089344765971973764544300315687738138697662753603627704472419144019687846080037650666820726531653591431318234817783723366928732663741930979028373065706673247678887622932953864665213443640540663583096177676785019951158918674676206645486488596557499409876953400560389856893099178439045990296104582994645915270823532855592610928869610332300380334745868076609997649425090303864019952736860274515626722051446687570031370410801026122451702895171708622268391208359062345868329339154310186872366716278386298473038101912930041824546890711727017571311882621608168485637253391742873143793480169232474076074022017648751854034707263782364454767510156905514489330047268833832952388438217279826445655805366687984411224794450405329312070855033355509294857339597106891377412833671070052152679753683204575832261722603204850681208209755264903056823106522569613252832725074055991528721274249566149942650659768046029644176860280140090210294145502002651993370390818862464976078203452269057095325281614723570414774738813443682840366363125174042388525317697482571533875279433671979650802714902300571023598598560654123145835253691190367244711362588850085008703519342210917986472570115390028683841795899837194935572324581013176523606904926430015004763146810443273223800672098459055973972152367035187743586183051036023437310001903164364846915130270332315469577514411043716972673852902788651993678264645900507129886302636495721466804354761427719084902941743200460980350052220196764464478145252568154530840377128195753335633033283320213459798065728210941938222849709480903989169042696392077419587730278881003008238052960544434131346881651581234519340533424833191050978191901172396024323934748157935026852056440440579688790070194285422999178115668780994816650453085796009841958226927737431999351586746300193701121111869635358833361469709765012616154372351090184048733759976932761096100673491290125315289569515672246564806728320037363331551507714768736546183122296456848746016405701863804776449886998606627026741403186260657921032855358795913711595436232657872846084219368055268271858891911153811141987063275730022270756416052856464316092633808489365936368344089558442179998313138551908943618566259387911124041289801834029627195251892570272049852347566387302433217245376661341552904922921424277578273576721652143623223387404085122426692352297997219363684141102894382302388194504981039336164826344736197522692428350923345086635626522800424137774108582501725758450082975615060633043481683300624620432382874498155020456401815759810645606004576880748771744945349477600497804568173460574393465863896002075507100452557843559306647462196785291717473893710261764461564323485578135605573388033723420310974600031238368067135636819574374734856352149988074521442134991968646686753048682785007051405506464649045274490889348801828741398259538748830716928529444842268568144538143294971367759583256139124307156155034301744168497147647487837080376179395889933608033324116276826441772040164236136738230296164844062957529738645419548997033597168459932834378550143985089942057464426952513956071292592628705634680330434503986096520580497223723854697728628852311405350562325788509921575015209646670890588497282700320306662141837132396857143067788086710916403211717094270332512757340911056600745058972315400959863444782956077788864509268602079839459983283380602180095622410392885920091643066800471704446101106224691325519841635571972062839093975536852110538691280326918634606297157227921268189218744262504157253718842925565701401313381548873920213702372380619063992488899347053785559148646845738186577520618479387730283246224798371879441913865385059719241646874485704486576211091737523274698276465678009684356036148925837536199772759185257345219261078509654609781399413623891313130559780513760268939788098627161461908715981688019656629908455420729265406780181431764645539465938403525836344788987861906005435174175076701174616995346014615034155378965073271678258317357263560111707881573731764532866043762844257427783997305236738612523194822671308671918577728334179448401819467251657937826086841029561389514887404996460551486455532789804247237009703731804294958788473495424454130878737138370740960783561562811887069842840588524280385696040872446852605795410564659384464971849849710033644570411364790407471373699610993318930664572983033657627701850392459103385523868180015351840170380556880335545471397360593051676467596663243077332386833202932107561557690334443532558782398464619848827696147457580212516547796181133294639451205420552563350944157229714006634464075506134015152859316928625636522943010971399264639820219196305481554071625858988560314031297137947300550243711257692472147699508735963652310126116323404577246340002751284564407537659239901343001169069023916133328378409154983343068735636563743215615904638245309220475994220539409612792248053979746554196351646150186423027616509369640232803511246278072445142761407785868057469164363247798151191184044718111741303949840867374134739838282425516445126887919719617210582416475206088958703031546170639431115216390830961183552365814973865851693523949671877319356167269244684732941665295242829100526574636672954795975601835290446242511059773752917026319261834555662239389926366454650732194734704377928012789291886806597416701273475875118738082009808567941899897581109501366674016462503689173891380720268326868506232214346266485982083717314762161524052150647382410062153630325060183176199013629261386402905069505143473033136391557888355240107865667462807353931856808310839932708863556490867637840546296333706069271653552113765589414111436594478700114238902554002828827708189380129762567353477667483048138948672612292811507823366877301184777325361851788584776595980118288663827542972743708929679897147622117103781223265917462885592966438363310832426206593593858007056200861106514071825676400743070556610784683287767435847870473302622511068010136287041788508608182132908937627082085576023638415538542799917852470052526240367444808540336242709536536811739276918903138259446503739768618687787208458169086125140125337726443415631693919129932496800250434195339618507972314672617848989864006866263946385809488024557125522946355116988984061425986714460673513337873591050072065655868366706266997875108450147645450719794432763843572633300389991628231412701720122813376277793750343898723572257531922826694231664387346961684496924637377046342999372108319005280435343708663943359378366810612381238586293915902485347580006386037989118420317879716397220871070390887626586265627273319765847786458804907071977678661285445774846743752078514586122460295106496810534531233121468853501925142863517325209958858417648689121407245401199342696232792712464946082345311217623744211411287521684455694582008849210365077215862618544866766325257117150571707605076764383845452585228856003489460022621228495906101900356970065222303506673526366243263628675856262771328926495784959309839396540697867133178254279659411530645908245998477917141080041508452258461577690289123558623884768380036612305291493838350580106577436458227295517531711043757914503013149549871510150038298334910123824237924675003243851501882292601151066529337229666159598214573138754275273635226559706016161025762605952031431193381355130908827741748216854835839958743083627006911006749901914664074855104335720017247678645332449475654894300524566276445090650374277866909888946601310984748571318401120693820541377691182094563906723843589518396495024290325646067954919654234160012906364533507765610146195570375204045798615235577250415216733299195321955229941065567996282454406421913696875249281646852057759351068544968849302393292384877423960369037758543929687247296340471809897587301635169065126865717717513186027969505239143961280926942159218553648481121115048527983870859440792032545983303738194310924710312127973266000734985890250380453779017585123060881357573965997454522656209708195952183867485241068653143421478311872380465399449995545255287895443562321949616843290352562252154409298242928092095736388254752347459389698697465210966481003819975875235003810148971659396413577740328189233514319246620318321682512486129399979138355452023368808267494661015154700932070421491815060229015563332852114230299044634156649479081564287563680326025231920418933525885137778512045417760376420663657279350357312123520305851501176947367592384782618314952707639624349081855363745492009726574289488317734565556834643078347400690807528412195953586755528939649181253577375961712851208894668845477226244239658116382282945165263812582345280716903945473098735119266694311174806011188200281721491756469325556688778229061155364947087666565049653977093373468901855398649131012257690140889287767359366812335116196894944535680469803985086821060010435590834932204309714599245690862575484104765491683749278350788175013568372639041245176490520331418158812002702143631637053757533486073548783714686527501170892955664454030570134113039900179406513543295263296146032974378115785766963789646099087749913548576717596153345323128920900680526057279316975924714918630732120449020093201829646079e-1388255822130839284</code></pre>
+<pre><code class=language-julia >BigFloat&#40;pi&#41;</code></pre><pre><code class=plaintext >3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989380952572010654858632788659361533818279682303019520353018529689957736225994138912497217752834791315155748572424541506959508295331168617278558890750983817546374649393192550604009277016711390098488240128583616035637076601047101819429555961989467678374494482553797747268471040475346462080466842590694912933136770289891521047521620569660240580381501935112533824300355876402474964732639141992726042699227967823547816360093417216412199245863150302861829745557067498385054945885869269956909272107975093029553211653449872027559602364806654991198818347977535663698074265425278625518184175746728909777727938000816470600161452491921732172147723501414419735685481613611573525521334757418494684385233239073941433345477624168625189835694855620992192221842725502542568876717904946016534668049886272327917860857843838279679766814541009538837863609506800642251252051173929848960841284886269456042419652850222106611863067442786220391949450471237137869609563643719172874677646575739624138908658326459958133904780275900994657640789512694683983525957098258226205224894077267194782684826014769909026401363944374553050682034962524517493996514314298091906592509372216964615157098583874105978859597729754989301617539284681382686838689427741559918559252459539594310499725246808459872736446958486538367362226260991246080512438843904512441365497627807977156914359977001296160894416948685558484063534220722258284886481584560285060168427394522674676788952521385225499546667278239864565961163548862305774564980355936345681743241125150760694794510965960940252288797108931456691368672287489405601015033086179286809208747609178249385890097149096759852613655497818931297848216829989487226588048575640142704775551323796414515237462343645428584447952658678210511413547357395231134271661021359695362314429524849371871101457654035902799344037420073105785390621983874478084784896833214457138687519435064302184531910484810053706146806749192781911979399520614196634287544406437451237181921799983910159195618146751426912397489409071864942319615679452080951465502252316038819301420937621378559566389377870830390697920773467221825625996615014215030680384477345492026054146659252014974428507325186660021324340881907104863317346496514539057962685610055081066587969981635747363840525714591028970641401109712062804390397595156771577004203378699360072305587631763594218731251471205329281918261861258673215791984148488291644706095752706957220917567116722910981690915280173506712748583222871835209353965725121083579151369882091444210067510334671103141267111369908658516398315019701651511685171437657618351556508849099898599823873455283316355076479185358932261854896321329330898570642046752590709154814165498594616371802709819943099244889575712828905923233260972997120844335732654893823911932597463667305836041428138830320382490375898524374417029132765618093773444030707469211201913020330380197621101100449293215160842444859637669838952286847831235526582131449576857262433441893039686426243410773226978028073189154411010446823252716201052652272111660396665573092547110557853763466820653109896526918620564769312570586356620185581007293606598764861179104533488503461136576867532494416680396265797877185560845529654126654085306143444318586769751456614068007002378776591344017127494704205622305389945613140711270004078547332699390814546646458807972708266830634328587856983052358089330657574067954571637752542021149557615814002501262285941302164715509792592309907965473761255176567513575178296664547791745011299614890304639947132962107340437518957359614589019389713111790429782856475032031986915140287080859904801094121472213179476477726224142548545403321571853061422881375850430633217518297986622371721591607716692547487389866549494501146540628433663937900397692656721463853067360965712091807638327166416274888800786925602902284721040317211860820419000422966171196377921337575114959501566049631862947265473642523081770367515906735023507283540567040386743513622224771589150495309844489333096340878076932599397805419341447377441842631298608099888687413260472156951623965864573021631598193195167353812974167729478672422924654366800980676928238280689964004824354037014163149658979409243237896907069779422362508221688957383798623001593776471651228935786015881617557829735233446042815126272037343146531977774160319906655418763979293344195215413418994854447345673831624993419131814809277771038638773431772075456545322077709212019051660962804909263601975988281613323166636528619326686336062735676303544776280350450777235547105859548702790814356240145171806246436267945612753181340783303362542327839449753824372058353114771199260638133467768796959703098339130771098704085913374641442822772634659470474587847787201927715280731767907707157213444730605700733492436931138350493163128404251219256517980694113528013147013047816437885185290928545201165839341965621349143415956258658655705526904965209858033850722426482939728584783163057777560688876446248246857926039535277348030480290058760758251047470916439613626760449256274204208320856611906254543372131535958450687724602901618766795240616342522577195429162991930645537799140373404328752628889639958794757291746426357455254079091451357111369410911939325191076020825202618798531887705842972591677813149699009019211697173727847684726860849003377024242916513005005168323364350389517029893922334517220138128069650117844087451960121228599371623130171144484640903890644954440061986907548516026327505298349187407866808818338510228334508504860825039302133219715518430635455007668282949304137765527939751754613953984683393638304746119966538581538420568533862186725233402830871123282789212507712629463229563989898935821167456270102183564622013496715188190973038119800497340723961036854066431939509790190699639552453005450580685501956730229219139339185680344903982059551002263535361920419947455385938102343955449597783779023742161727111723643435439478221818528624085140066604433258885698670543154706965747458550332323342107301545940516553790686627333799585115625784322988273723198987571415957811196358330059408730681216028764962867446047746491599505497374256269010490377819868359381465741268049256487985561453723478673303904688383436346553794986419270563872931748723320837601123029911367938627089438799362016295154133714248928307220126901475466847653576164773794675200490757155527819653621323926406160136358155907422020203187277605277219005561484255518792530343513984425322341576233610642506390497500865627109535919465897514131034822769306247435363256916078154781811528436679570611086153315044521274739245449454236828860613408414863776700961207151249140430272538607648236341433462351897576645216413767969031495019108575984423919862916421939949072362346468441173940326591840443780513338945257423995082965912285085558215725031071257012668302402929525220118726767562204154205161841634847565169998116141010029960783869092916030288400269104140792886215078424516709087000699282120660418371806535567252532567532861291042487761825829765157959847035622262934860034158722980534989650226291748788202734209222245339856264766914905562842503912757710284027998066365825488926488025456610172967026640765590429099456815065265305371829412703369313785178609040708667114965583434347693385781711386455873678123014587687126603489139095620099393610310291616152881384379099042317473363948045759314931405297634757481193567091101377517210080315590248530906692037671922033229094334676851422144773793937517034436619910403375111735471918550464490263655128162288244625759163330391072253837421821408835086573917715096828874782656995995744906617583441375223970968340800535598491754173818839994469748676265516582765848358845314277568790029095170283529716344562129640435231176006651012412006597558512761785838292041974844236080071930457618932349229279650198751872127267507981255470958904556357921221033346697499235630254947802490114195212382815309114079073860251522742995818072471625916685451333123948049470791191532673430282441860414263639548000448002670496248201792896476697583183271314251702969234889627668440323260927524960357996469256504936818360900323809293459588970695365349406034021665443755890045632882250545255640564482465151875471196218443965825337543885690941130315095261793780029741207665147939425902989695946995565761218656196733786236256125216320862869222103274889218654364802296780705765615144632046927906821207388377814233562823608963208068222468012248261177185896381409183903673672220888321513755600372798394004152970028783076670944474560134556417254370906979396122571429894671543578468788614445812314593571984922528471605049221242470141214780573455105008019086996033027634787081081754501193071412233908663938339529425786905076431006383519834389341596131854347546495569781038293097164651438407007073604112373599843452251610507027056235266012764848308407611830130527932054274628654036036745328651057065874882256981579367897669742205750596834408697350201410206723585020072452256326513410559240190274216248439140371</code></pre>
+<h2 id="aproximações_da_derivada"><a href="#aproximações_da_derivada" class=header-anchor >Aproximações da derivada</a></h2>
+<p>Como aplicação de aritmética de ponto flutuante, vamos considerar o problema de aproximar derivadas. A definição da derivada é \( \lim_{h \rightarrow 0}
+\frac{f(x+h) - f(x)}{h}, \) então podemos aproveitar essa definição é escolher um h pequeno e não nulo para aproximar essa derivada.</p>
+<p>Vamos testar essa aproximação com f&#40;x&#41; &#61; e^x, cuja derivada é f&#39;&#40;x&#41;.</p>
+<pre><code class=language-julia >DF&#40;x, h&#41; &#61; &#40;exp&#40;x&#43;h&#41; - exp&#40;x&#41;&#41;/h</code></pre><pre><code class=plaintext >DF (generic function with 1 method)</code></pre>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41;</code></pre><pre><code class=plaintext >f (generic function with 1 method)</code></pre>
+<pre><code class=language-julia >using Plots
+gr&#40;&#41;
+#Aproximação para &#36;h &#61; 1e-4&#36;
+h &#61; 1e-4
+plot&#40;f, -1, 1, c&#61;:blue&#41;
+plot&#33;&#40;x-&gt;DF&#40;x, h&#41;, -1, 1, c&#61;:red&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der1.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >plot&#40;x-&gt;DF&#40;x, h&#41; - f&#40;x&#41;, -1, 1, c&#61;:blue&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der2.png" alt=""> 
+  </figure>
+  
+<p>Essa aproximação parece bastante boa. Vamos ver num intervalo maior.</p>
+<p>Aproximação para \(h = 1e-4\)</p>
+<pre><code class=language-julia >h &#61; 1e-4
+plot&#40;f, -10, 10, c&#61;:blue&#41;
+plot&#33;&#40;x-&gt;DF&#40;x, h&#41;, -10, 10, c&#61;:red&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der3.png" alt=""> 
+  </figure>
+  
+<p>Vamos ver o erro dessa aproximação. Aproximação para \(h = 1e-4\)</p>
+<pre><code class=language-julia >h &#61; 1e-4
+plot&#40;x-&gt;f&#40;x&#41; - DF&#40;x, h&#41;, -10, 10, c&#61;:red&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der4.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >abs&#40;f&#40;1.0&#41; - DF&#40;1.0, 1e-4&#41;&#41;/f&#40;1.0&#41;</code></pre><pre><code class=plaintext >5.000166739738369e-5</code></pre>
+<p>Razoavelmente esperado, o erro está na casa dos \(5\times 10^{-5}\). Vamos diminuir o valor de h.</p>
+<pre><code class=language-julia >abs&#40;f&#40;1.0&#41; - DF&#40;1.0, 1e-5&#41;&#41;/f&#40;1.0&#41;</code></pre><pre><code class=plaintext >5.000032568337868e-6</code></pre>
+<p>Também esperado, o erro diminui. Vamos tentar um h bem menor.</p>
+<pre><code class=language-julia >abs&#40;f&#40;1.0&#41; - DF&#40;1.0, 1e-15&#41;&#41;/f&#40;1.0&#41;</code></pre><pre><code class=plaintext >0.1435990324493588</code></pre>
+<p>Ora, o erro aumentou bastante. Como você deve suspeitar, isso acontece por causa dos erros de cancelamento. Vejamos um gráfico do erro em função de h.</p>
+<pre><code class=language-julia >plot&#40;x -&gt; x, 1e-4, 1e3, c&#61;:red, xaxis&#61;:log, yaxis&#61;:log&#41;
+plot&#33;&#40;x -&gt; x^2, 1e-4, 1e3, c&#61;:blue, xaxis&#61;:log, yaxis&#61;:log&#41;
+
+hs &#61; &#91;&#93;
+Es &#61; &#91;&#93;
+h &#61; 1.0
+x &#61; 1.0
+while h &gt; 1e-16
+    E &#61; abs&#40;f&#40;x&#41; - DF&#40;x, h&#41;&#41;
+    push&#33;&#40;hs, h&#41;
+    push&#33;&#40;Es, E&#41;
+    h &#61; h / 2
+end
+plot&#40;hs, Es, m&#61;3, xaxis&#61;:log, yaxis&#61;:log&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der5.png" alt=""> 
+  </figure>
+  
+<p>Pelo gráfico podemos ver que o erro diminui até por volta de \(10^{-8}\), e depois aumenta, erraticamente. Vamos tentar descobrir teoricamente o motivo disso.</p>
+<p>Vamos usar o Teorema de Taylor com resto para encontrar um limitante para a derivada aproximada. Veja que expandindo \(f(x+h)\) em torno de \(x\), temos \( f(x
++ h) = f(x) + f'(x)h + \frac{h^2}{2}f''(\xi), \) onde \(\xi\) é um valor entre \(x\) e \(h\). Isso quer dizer que \( f'(x) = \frac{f(x+h) - f(x)}{h} -
+\frac{h}{2}f''(\xi). \)</p>
+<p>Isso nos dá um embasamento teórico de porque o erro diminui inicialmente, e porque é proporcional à \(h/2\). No entanto, lembre-se que computacionalmente não conseguimos calcular \(f(x)\) exatamente. Na prática estamos calculando um valor \(\overline{f}(x)\) e \(\overline{f}(x+h)\), e daí \( D_h(x) =
+\dfrac{\overline{f}(x+h) - \overline{f}(x)}{h}. \)</p>
+<p>Lembre-se da limitação do erro é dada por um valor \(\epsilon\) com \(|\epsilon| <
+\epsilon_M\) &#40;da máquina&#41;, e portanto vamos usar diretamente \(\epsilon_M\) como limitante:</p>
+\[|\overline{f}(x) - f(x)| \leq \epsilon_M |f(x)|,\]
+<p>e</p>
+\[|\overline{f}(x+h) - f(x+h)| \leq \epsilon_M |f(x+h)|.\]
+<p>Considerando nosso interesse num intervalo \((a,b)\) onde \(x\) e \(x+h\) residem, podemos limitar \(|f(x)|\) por \(L_1\) em todo esse intervalo, de modo que \( |\overline{f}(x) - f(x)| \leq
+\epsilon_M L_1, \) e \( |\overline{f}(x+h) - f(x+h)| \leq \epsilon_M L_1. \)</p>
+<p>Logo, o erro de nossa aproximação é</p>
+\[\begin{aligned}
+\text{Erro}(h) & = |f'(x) - Dh(x)| \\
+& = \bigg| \frac{f(x+h)-f(x)}{h} - \frac{h}{2}f''(\xi) - \frac{\overline{f}(x+h)-\overline{f}(x)}{h} \bigg| \\
+& = \bigg|\frac{\overline{f}(x+h)-f(x+h)-\overline{f}(x)+f(x)}{h} - \frac{h}{2}f''(\xi) \bigg| \\
+& \leq \frac{|\overline{f}(x+h)-f(x+h)| + |\overline{f}(x) - f(x)|}{h} + \frac{h}{2}|f''(\xi)| \\
+& \leq \frac{2\epsilon_M L_1}{h} + \frac{h}{2}L_2,
+\end{aligned}\]
+<p>onde \(L_2\) é um limitante para \(|f''(x)|\) no intervalo \((a,b)\).</p>
+<pre><code class=language-julia >hs &#61; 10.0 .^ &#40;-11:0.02:-2&#41;
+plot&#40;hs, hs / 2, xaxis&#61;:log, yaxis&#61;:log, lab&#61;&quot;h / 2&quot;&#41;
+plot&#33;&#40;hs, 2e-16 ./ hs, c&#61;:red, lab&#61;&quot;2e-16 / h&quot;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der6.png" alt=""> 
+  </figure>
+  
+<p>Note que o limitante para o erro depende de \(1/h\) além de depender de h. Isso quer dizer que a diminuição de h faz o erro crescer bastante, apesar do termo linear dizer que o erro diminui. Felizmente, temos \(1/h\) multiplicado por \(\epsilon_M\), de modo que esse erro começa relativamente pequeno.</p>
+<p>Os problemas comeração quando o erro da esquerda for maior que o da direita, começando de um valor grande de h e tendendo à 0. Nessa direção, o valor da esquerda é crescente, e o da direta é decrescente. Então, podemos buscar onde eles ficam iguais, e a partir daquele instante saberemos quando o da esquerda fica maior que o da direita.</p>
+\( \frac{2\epsilon_M L_1}{h} = \frac{h}{2}L_2 \qquad \Rightarrow \qquad h =
+2\sqrt{\frac{L_1}{L_2}}\sqrt{\epsilon_M}. \)
+<p>Os valores de \(L_1\) e \(L_2\) só podem ser obtidos em casos específicos, pois dependem da função f, de sua segunda derivada, do intervalo em questão, e de quão apertado é o limitante obtido. No entanto, é possível ver que existe uma dependência linear com o valor \(\sqrt{\epsilon_M}\), que no caso de precisão dupla é \(10^{-8}\). Não por acaso, o valor que vimos no gráfico.</p>
+<p>Além disso, veja o valor que o limitante obtém quando substituímos esse valor de h: \( 2\sqrt{\epsilon_M}\sqrt{L_1L_2}. \) Esse valor também condiz com o valor encontrado no gráfico.</p>
+<p>Agora, vamos fazer a mesma análise com a seguinte aproximação para a derivada, chamada de diferença centrada,</p>
+\[ f'(x) = \frac{f(x+h) - f(x-h)}{2h} - \frac{h^2}{6}f''(\xi). \]
+<p>Exercício: Faça a mesma análise que fizemos anteriormente para encontrar um valor ótimo para h que minimize o limitante do erro, e também o valor desse limitante no h ótimo. Compare seus resultados com o do gráfico abaixo.</p>
+<pre><code class=language-julia >D_av&#40;f, x, h&#41; &#61; &#40;f&#40;x &#43; h&#41; - f&#40;x&#41;&#41; / h
+D_ct&#40;f, x, h&#41; &#61; &#40;f&#40;x &#43; h&#41; - f&#40;x - h&#41;&#41; / 2h
+hs &#61; &#91;&#93;
+E_av &#61; &#91;&#93;
+E_ct &#61; &#91;&#93;
+E_ct2 &#61; &#91;&#93;
+h &#61; 1.0
+x &#61; 1.0
+f&#40;x&#41; &#61; exp&#40;x&#41;
+fx &#61; exp&#40;x&#41;
+while h &gt; 1e-16
+    push&#33;&#40;hs, h&#41;
+    E &#61; abs&#40;fx - D_av&#40;f, x, h&#41;&#41;/abs&#40;fx&#41;
+    push&#33;&#40;E_av, E&#41;
+    E &#61; abs&#40;fx - D_ct&#40;f, x, h&#41;&#41;/abs&#40;fx&#41;
+    push&#33;&#40;E_ct, E&#41;
+    h &#61; h /&#61; 2
+end
+plot&#40;hs, E_av, m&#61;3, xaxis&#61;:log, yaxis&#61;:log, c&#61;:blue&#41;
+plot&#33;&#40;hs, E_ct, m&#61;3, xaxis&#61;:log, yaxis&#61;:log, c&#61;:red&#41;</code></pre>
+<p>
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/ponto-flutuante/code/output/fig-der7.png" alt=""> 
+  </figure>
+   A mesma análise pode ser feita para a segunda derivada, assim como outras. Além disso, existem várias maneiras de se aproximar as derivadas, utilizando mais avaliações da função f.</p>
+<h3 id="exercícios"><a href="#exercícios" class=header-anchor >Exercícios</a></h3>
+<p>Faça os exercícios do capítulo 1 do livro Cálculo Numérico de Ruggiero e Lopes.</p>
+<ol>
+<li><p>Para cada sequência abaixo, calcule o maior termo que pode ser representado por um inteiro de \(64\) bits sem sinal.</p>
+<ul>
+<li><p>\(a_n = 2^n\);</p>
+
+<li><p>\(a_n = 3n + 5\);</p>
+
+<li><p>\(a_n = q a_{n-1}\) onde \(q > 1\) e \(a_0 = 1\);</p>
+
+<li><p>\(a_n = n!\) &#40;use o computador&#41;:</p>
+
+<li><p>\(a_n = a_{n-1} + a_{n-2}\), com \(a_0 = a_1 = 1\).</p>
+
+</ul>
+
+<li><p>Sabendo que a primeira e segunda derivadas de \(f\) em \(x\) existem, calcule os seguintes limites.</p>
+
+</ol>
+<p>&#40;Nota: Para real emoção, não use L&#39;Hôpital&#41;.</p>
+<ul>
+<li><p>\(\displaystyle \lim _ {h \to 0} \dfrac{f(x-h) - f(x)}{h}\);</p>
+
+<li><p>\(\displaystyle \lim _ {h \to 0} \dfrac{f(x+h) - f(x-h)}{h}\);</p>
+
+<li><p>\(\displaystyle \lim _ {h \to 0} \dfrac{f(x+2h) - 2f(x+h) + f(x)}{h}\);</p>
+
+<li><p>\(\displaystyle \lim _ {h \to 0} \dfrac{f(x+h) - 2f(x) + f(x-h)}{h^2}\);</p>
+
+<li><p>\(\displaystyle \lim _ {h \to 0} \dfrac{f(x + \alpha h) - f(x - \alpha
+     h)}{h} ,\quad \alpha \neq 0\).</p>
+
+</ul>
+
+</div>
+</div>
+</div>
+
+<footer>
+<div class="container-fluid text-center social-footer">
+    <a href="mailto:abel.s.siqueira@gmail.com">
+        <i class="fas fa-2x fa-envelope" aria-hidden=true ></i>
+    </a><a href="https://github.com/abelsiqueira">
+        <i class="fab fa-2x fa-github-square" aria-hidden=true ></i>
+    </a><a href="https://linkedin.com/in/abel-siqueira/">
+        <i class="fab fa-2x fa-linkedin" aria-hidden=true ></i>
+    </a><a href="https://twitter.com/abel_siqueira">
+        <i class="fab fa-2x fa-twitter-square" aria-hidden=true ></i>
+    </a><a href="https://www.researchgate.net/profile/Abel_Siqueira">
+        <i class="fab fa-2x fa-researchgate" aria-hidden=true ></i>
+    </a><a href="http://orcid.org/0000-0003-4451-281X">
+        <i class="fab fa-2x fa-orcid" aria-hidden=true ></i>
+    </a>
+</div>
+</footer>
+
+
+<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
+<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+
+
+<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+
+<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>

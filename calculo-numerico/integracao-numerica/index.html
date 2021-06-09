@@ -1,0 +1,692 @@
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Integração Numérica</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="integração_numérica"><a href="#integração_numérica" class=header-anchor >Integração Numérica</a></h1> <p>Em cálculo I aprendemos que</p> \[ \int_a^b f(x)\text{d}x = F(b) - F(a), \] <p>se \(f\) for uma função integrável, e onde \(F\) é uma primitiva de \(f\).</p> <p>No entanto, nem sempre é fácil encontrar uma primitiva para \(F\). Às vezes, pode ser impossível, como em</p> \[ \int_a^b e^{-x^2}\text{d}x. \] <p>Por sorte, muitas vezes uma aproximação numérica é suficiente para nosso objetivo.</p> <p>Vamos estudar alguns métodos de aproximação numérica, a maior parte deles usando valores da função \(f\) em pontos selecionados, isto é</p> \[ \int_a^bf(x)\text{d}x \approx \sum_{i=1}^m A_if(x_i), \] <p>para uma quantidade de pontos \(m\), pontos \(x_i\) e valores \(A_i\).</p> <p>Salvo indicação contrária, iremos supor que \(x_1 < x_2 < \dots < x_m\).</p> <h2 id="fórmulas_de_newton-cotes"><a href="#fórmulas_de_newton-cotes" class=header-anchor >Fórmulas de Newton-Cotes</a></h2> <p>As fórmulas de Newton-Cotes provém da <strong>interpolação polinomial da função \(f\)</strong> em pontos igualmente espaços do intervalo \([a,b]\). Se os intervalos estiverem entre os pontos escolhidos, isto é, se \(x_1 = a\) e \(x_m = b\), então a fórmula é dita <strong>fechada</strong>. Caso contrário, aberta.</p> <p>Uma interpolação polinomial da função \(f\) nos pontos \(x_1, \dots, x_m\), é uma função polinomial \(p\) que satisfaz \(p(x_i) = f(x_i)\), para \(i = 1,\dots,m\).</p> <p>As fórmulas de Newton-Cotes fechadas terão os pontos \(x_i\) descritos por</p> \[ x_i = a + (i-1)h, \] <p>onde \(h = \dfrac{b-a}{m-1}\).</p> <pre><code class=language-julia >using Plots
+gr&#40;size&#61;&#40;600,400&#41;&#41;
+
+a &#61; 1.0
+b &#61; 3.0
+m &#61; 11
+h &#61; &#40;b - a&#41; / &#40;m - 1&#41;</code></pre><pre><code class=plaintext >0.2</code></pre>
+<pre><code class=language-julia >range&#40;a, b, length&#61;m&#41;</code></pre><pre><code class=plaintext >1.0:0.2:3.0</code></pre>
+<pre><code class=language-julia >collect&#40;range&#40;a, b, length&#61;m&#41;&#41;</code></pre><pre><code class=plaintext >11-element Vector{Float64}:
+ 1.0
+ 1.2
+ 1.4
+ 1.6
+ 1.8
+ 2.0
+ 2.2
+ 2.4
+ 2.6
+ 2.8
+ 3.0</code></pre>
+<pre><code class=language-julia >scatter&#40;&#91;a; b&#93;, zeros&#40;2&#41;, c&#61;:blue, ms&#61;10, leg&#61;false&#41;
+scatter&#33;&#40;range&#40;a, b, length&#61;m&#41;, zeros&#40;m&#41;, c&#61;:red&#41;
+ylims&#33;&#40;-1, 1&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-int1&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int1.png" alt="Distribuição dos pontos"> 
+  <figcaption> Distribuição dos pontos</figcaption>
+  </figure>
+  
+<p>No caso das fórmula abertas, o espaçamento entre os pontos é \(h\), mas começamos a contar depois de \(a\) e paramos antes de \(b\). Desse modo, podemos pensar que o espaçamento é \(h\) no intervalo fechado \([a + h, b - h]\). De modo que</p>
+\[ h = \frac{b - h - (a + h)}{m - 1}. \]
+<p>Resolvendo essa equação para encontrar \(h\), obtemos</p>
+\[ h = \frac{b - a}{m+1}. \]
+<pre><code class=language-julia >a &#61; 1.0
+b &#61; 3.0
+m &#61; 9
+h &#61; &#40;b - a&#41; / &#40;m &#43; 1&#41;
+
+collect&#40;range&#40;a&#43;h, b-h, length&#61;m&#41;&#41;
+
+scatter&#40;&#91;a; b&#93;, zeros&#40;2&#41;, c&#61;:blue, ms&#61;10, leg&#61;false&#41;
+scatter&#33;&#40;range&#40;a&#43;h, b-h, length&#61;m&#41;, zeros&#40;m&#41;, c&#61;:red&#41;
+ylims&#33;&#40;-1, 1&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-int2&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int2.png" alt="Distribuição dos pontos"> 
+  <figcaption> Distribuição dos pontos</figcaption>
+  </figure>
+  
+<h3 id="ponto-médio"><a href="#ponto-médio" class=header-anchor >Ponto-Médio</a></h3>
+<p>Vamos começar considerando uma simples aproximação para \(f\): uma interpolação de um ponto.</p>
+\[ p(x) = f\bigg(\frac{a+b}{2}\bigg), \]
+<p>isto é, \(p\) é uma função constante. Essa aproximação resulta em</p>
+\[ \int_a^b f(x)\text{d}x \approx \int_a^bf((a+b)/2)\text{d}x = (b-a)f\bigg(\frac{a+b}{2}\bigg). \]
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41;
+a, b &#61; 0, 1
+Iexata &#61; MathConstants.e - 1
+IPM &#61; &#40;b - a&#41; * f&#40; &#40;a &#43; b&#41; / 2 &#41;
+ErroPM &#61; Iexata - IPM
+ErroRelPM &#61; abs&#40;ErroPM&#41; / Iexata
+
+function integral_PM&#40;f, a, b&#41;
+    x &#61; &#40;a &#43; b&#41; / 2
+    h &#61; &#40;b - a&#41; / 2
+    return 2h * f&#40;x&#41;
+end
+
+integral_PM&#40;exp, 0, 1&#41;</code></pre><pre><code class=plaintext >1.6487212707001282</code></pre>
+<p>Essa aproximação é chamada de regra do <strong>ponto-médio</strong>, e é uma fórmula aberta. Note que não é possível uma fórmula fechada de um ponto, por motivos óbvios.</p>
+<p>Note que, como \([a,b]\) foi divido em dois, temos \(h = (b-a)/2\). Daí, podemos escrever</p>
+\[ \int_a^b f(x)\text{d}x \approx 2h f(x_1). \]
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41; &#43; cos&#40;3π*x&#41; * 0.5 &#43; 3
+F&#40;x&#41; &#61; exp&#40;x&#41; &#43; sin&#40;3π*x&#41;/6π &#43; 3x
+a, b &#61; -2, 2
+plot&#40;f, a, b, c&#61;:red, fill&#61;&#40;0,:red,0.5&#41;, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;f&#40;&#40;a&#43;b&#41;/2&#41;, a, b, c&#61;:blue, fill&#61;&#40;0,:blue,0.5&#41;&#41;
+
+function ponto_medio&#40;f, a, b&#41;
+    return &#40;b - a&#41; * f&#40;&#40;a &#43; b&#41; / 2&#41;
+end
+
+ponto_medio&#40;f, a, b&#41; - &#40;F&#40;b&#41; - F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >-1.253720815694038</code></pre>
+<h3 id="trapézio"><a href="#trapézio" class=header-anchor >Trapézio</a></h3>
+<p>A fórmula de trapézio é uma fórmula de dois pontos. Note que dado dois pontos distintos, temos uma reta. Pensando na integral como a área abaixo dessa reta, vemos que a área será a área de um trapézio. Daí, o nome.</p>
+<p>Para o caso fechado, os dois pontos no intervalo \([a,b]\) serão \(x_1 = a\) e \(x_2 = b\).</p>
+<p>Para o caso aberto, os dois pontos no intervalo \([a,b]\) serão \(x = \frac{2a + b}{3}\)</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41; &#43; cos&#40;3π * x&#41; * 0.5 &#43; 3
+F&#40;x&#41; &#61; exp&#40;x&#41; &#43; sin&#40;3π * x&#41; / 6π &#43; 3x
+a, b &#61; -2, 2
+plot&#40;f, a, b, c&#61;:red, fill&#61;&#40;0,:red,0.5&#41;, leg&#61;false&#41;
+plot&#33;&#40;x-&gt;f&#40;a&#41; &#43; &#40;x - a&#41; * &#40;f&#40;b&#41; - f&#40;a&#41;&#41; / &#40;b - a&#41;, a, b, c&#61;:blue, fill&#61;&#40;0,:blue,0.5&#41;&#41;
+scatter&#33;&#40;&#91;a, b&#93;, &#91;f&#40;a&#41;, f&#40;b&#41;&#93;, c&#61;:blue&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-int3&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int3.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >plot&#40;f, a, b, c&#61;:red, fill&#61;&#40;0,:red,0.5&#41;, leg&#61;false&#41;
+x1, x2 &#61; &#40;2a&#43;b&#41;/3, &#40;a&#43;2b&#41;/3
+plot&#33;&#40;x-&gt;f&#40;x1&#41; &#43; &#40;x-x1&#41;*&#40;f&#40;x2&#41;-f&#40;x1&#41;&#41;/&#40;x2-x1&#41;, a, b, c&#61;:blue, fill&#61;&#40;0,:blue,0.5&#41;&#41;
+scatter&#33;&#40;&#91;x1, x2&#93;, &#91;f&#40;x1&#41;, f&#40;x2&#41;&#93;, c&#61;:blue&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-int4&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int4.png" alt=""> 
+  </figure>
+  
+<p>A reta que usamos para aproximar a integral é dada por</p>
+\[ p(x) = f(x_1) + (x-x_1)\frac{f(x_2)-f(x_1)}{x_2-x_1}, \]
+<p>onde \(x_1 = a\) e \(x_2 = b\) no caso fechado, ou \(x_1 = \dfrac{2a+b}{3}\) e \(x_2 = \dfrac{a + 2b}{3}\).</p>
+<p>Em ambos os casos, teremos</p>
+\[ \int_a^b f(x)\text{d}x \approx
+\frac{b-a}{2}[f(x_1) + f(x_2)].
+\]
+<p>No entanto, além de \(x_1\) e \(x_2\) serem diferentes, temos também o valor de \(h\). Para o caso fechado, temos \(h = b-a\). Daí,</p>
+\[ \int_a^b f(x)\text{d}x \approx \frac{h}{2}[f(x_1) + f(x_2)]. \]
+<p>Para o caso aberto, temos \(h = \frac{b-a}{3}\). Logo,</p>
+\[ \int_a^b f(x)\text{d}x \approx \frac{3h}{2}[f(x_1) + f(x_2)]. \]
+<pre><code class=language-julia >function trapezio_fechado&#40;f, a, b&#41;
+    return &#40;b-a&#41;*&#40;f&#40;a&#41;&#43;f&#40;b&#41;&#41;/2
+end
+
+function trapezio_aberto&#40;f, a, b&#41;
+    h &#61; &#40;b-a&#41;/3
+    return &#40;b-a&#41;*&#40;f&#40;a&#43;h&#41;&#43;f&#40;b-h&#41;&#41;/2
+end
+
+f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+a, b &#61; 0, 1
+
+trapezio_fechado&#40;exp, 0, 1&#41;</code></pre><pre><code class=plaintext >1.8591409142295225</code></pre>
+<pre><code class=language-julia >trapezio_aberto&#40;exp, 0, 1&#41;</code></pre><pre><code class=plaintext >1.6716732330703827</code></pre>
+<pre><code class=language-julia >trapezio_fechado&#40;f, a, b&#41; - &#40;F&#40;b&#41;-F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >0.14085908577047745</code></pre>
+<pre><code class=language-julia >trapezio_aberto&#40;f, a, b&#41; - &#40;F&#40;b&#41;-F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >-0.046608595388662355</code></pre>
+<h2 id=erro ><a href="#erro" class=header-anchor >Erro</a></h2>
+<p>Uma pergunta importante aqui é quão errada é essa aproximação. Note que, diferente do método de Newton ou da bissecção, não estamos calculando aproximações sucessivas para a integral, e sim uma única aproximação, que esperamos ser boa o suficiente.</p>
+<p>O cálculo da fórmula do erro envolve outros conceitos não estudados nesta disciplina. Iremos apenas apresentar os erros, começando pelas três aproximações que vimos.</p>
+<p>Abaixo, \(\xi\) é algum número em \([a,b]\) ou \((a,b)\), se a função for fechada ou aberta, respectivamente.</p>
+<ul>
+<li><p>Ponto médio</p>
+
+</ul>
+\[ \int_a^b f(x)\text{d}x = 2hf(x_1) + \frac{h^3}{3}f''(\xi)
+= (b-a) f\bigg(\frac{b-a}{2}\bigg) + \frac{(b-a)^3}{24}f''(\xi); \]
+<ul>
+<li><p>Trapézio fechado</p>
+
+</ul>
+\[ \int_a^b f(x)\text{d}x = \frac{h}{2}[f(x_1) + f(x_2)] - \frac{h^3}{12}f''(\xi)
+= \frac{b-a}{2}[f(a) + f(b)] - \frac{(b-a)^3}{12}f''(\xi); \]
+<ul>
+<li><p>Trapézio aberto</p>
+
+</ul>
+\[ \int_a^b f(x)\text{d}x = \frac{3h}{2}[f(x_1) + f(x_2)] + \frac{3h^3}{4}f''(\xi)
+= \frac{b-a}{2}[f\bigg(\frac{2a+b}{3}\bigg) + f\bigg(\frac{a+2b}{3}\bigg)] - \frac{(b-a)^3}{36}f''(\xi). \]
+<p>As três aproximações compartilham uma mesma propriedade. O erro é da ordem de \(h^3 f''(\xi)\). Isso quer dizer que para valores pequenos de \(h\), o erro diminui cubicamente. Note que o \(\xi\) para cada aproximação pode ser diferente.</p>
+<pre><code class=language-julia >a &#61; 0
+f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+cores &#61; &#91;:blue, :red, :magenta&#93;
+scatter&#40;leg&#61;false, xaxis&#61;:log, yaxis&#61;:log&#41;
+for &#40;i,mtd&#41; in enumerate&#40;&#91;ponto_medio, trapezio_fechado, trapezio_aberto&#93;&#41;
+    b &#61; 1.0
+    while b &gt; 1e-6
+        Ireal &#61; F&#40;b&#41; - F&#40;a&#41;
+        Iapprox &#61; mtd&#40;f, a, b&#41;
+        E &#61; abs&#40;Ireal - Iapprox&#41; / Ireal
+        scatter&#33;&#40;&#91;b&#93;, &#91;E&#93;, c&#61;cores&#91;i&#93;&#41;
+        b /&#61; 2.0
+    end
+end
+b &#61; &#91;1.0; 1e-6&#93;
+plot&#33;&#40;b, b.^3 .* exp.&#40;b&#41; ./ &#40;F.&#40;b&#41; .- F&#40;a&#41;&#41; / 12&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int5.png" alt=""> 
+  </figure>
+  
+<p>Duas conclusões importantes podem ser tiradas daqui. Primeiro, não existem bons motivos para se usar o trapézio aberto, uma vez que o erro do ponto médio é da mesma ordem que o do trapézio aberto. Segundo, que todas essas fórmulas tem uma erro proporcional à \(f''(\xi)\), de modo que integram perfeitamente funções afins.</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; 2x &#43; 5
+F&#40;x&#41; &#61; x^2 &#43; 5x
+a, b &#61; 0, 1
+ponto_medio&#40;f, a, b&#41; - &#40;F&#40;b&#41; - F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >0.0</code></pre>
+<p>Outro ponto agora é se conseguimos melhorar nossa aproximação num intervalo fixo \([a,b]\). Existem duas possibilidades: aumentar a quantidade de pontos da interpolação, ou quebrar o intervalo \([a,b]\) em vários intervalos menores.</p>
+<h3 id=regra_de_simpson ><a href="#regra_de_simpson" class=header-anchor >Regra de Simpson</a></h3>
+<p>Usando 3 pontos chegamos nas seguintes fórmulas:</p>
+<p>\[\begin{aligned}
+\int_a^b f(x)\text{d}x & = \frac{b-a}{6}[f(a) + 4f\bigg(\frac{a+b}{2}\bigg) + f(b)] - \frac{(b-a)^5}{2880}f^{(4)}(\xi) \\
+& = \frac{h}{3}[f(x_1) + 4f(x_2) + f(x_3)] - \frac{h^5}{90}f^{(4)}(\xi),
+\end{aligned}\] e</p>
+\[\begin{aligned}
+\int_a^b f(x)\text{d}x & = \frac{b-a}{3}[2f(a+h) - f(a+2h) + 2f(a+3h)] + \frac{7(b - a)^5}{23040}f^{(4)}(\xi) \\
+& = \frac{4h}{3}[2f(x_1) - f(x_2) + 2f(x_3)] + \frac{14h^5}{45}f^{(4)}(\xi).
+\end{aligned}\]
+<p>Note que \(h = \dfrac{b-a}{2}\) na fórmula fechada e \(h = \dfrac{b-a}{4}\) na fórmula aberta.</p>
+<p>A fórmula fechada de 3 pontos é chamado de regra de Simpson.</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41; &#43; cos&#40;3π*x&#41; * 0.5 &#43; 3
+a, b &#61; -2, 2
+c &#61; &#40;a&#43;b&#41;/2
+interp&#40;x&#41; &#61; f&#40;a&#41; &#43; &#40;x - a&#41; * &#40;f&#40;c&#41; - f&#40;a&#41;&#41; / &#40;c - a&#41; &#43; &#40;x - a&#41; * &#40;x - c&#41; * &#40;f&#40;b&#41; - 2*f&#40;c&#41; &#43; f&#40;a&#41;&#41; / &#40;2 * &#40;c - a&#41;^2&#41;
+plot&#40;f, a, b, c&#61;:red, fill&#61;&#40;0,:red,0.5&#41;, leg&#61;false&#41;
+plot&#33;&#40;interp, a, b, c&#61;:blue, fill&#61;&#40;0,:blue,0.5&#41;&#41;
+scatter&#33;&#40;&#91;a, c, b&#93;, &#91;f&#40;a&#41;, f&#40;c&#41;, f&#40;b&#41;&#93;, c&#61;:blue&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int6.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >function simpson&#40;f, a, b&#41;
+    h &#61; &#40;b - a&#41; / 2
+    return h * &#40;f&#40;a&#41; &#43; 4 * f&#40;a &#43; h&#41; &#43; f&#40;b&#41;&#41; / 3
+end
+
+function aberta3pontos&#40;f, a, b&#41;
+    h &#61; &#40;b - a&#41; / 4
+    return 4h * &#40;2 * f&#40;a &#43; h&#41; &#43; 2 * f&#40;b - h&#41; - f&#40;a &#43; 2h&#41;&#41; / 3
+end
+
+a &#61; 0.0
+f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+cores &#61; &#91;:blue, :red, :magenta&#93;
+scatter&#40;leg&#61;false, xaxis&#61;:log, yaxis&#61;:log&#41;
+for &#40;i,mtd&#41; in enumerate&#40;&#91;simpson, aberta3pontos&#93;&#41;
+    b &#61; 1.0
+    while b &gt; 1e-6
+        Ireal &#61; F&#40;b&#41; - F&#40;a&#41;
+        Iapprox &#61; mtd&#40;f, a, b&#41;
+        E &#61; abs&#40;Ireal - Iapprox&#41; / Ireal
+        scatter&#33;&#40;&#91;b&#93;, &#91;E&#93;, c&#61;cores&#91;i&#93;&#41;
+        b /&#61; 2.0
+    end
+end
+b &#61; &#91;1.0; 1e-6&#93;
+plot&#33;&#40;b, b.^5 .* exp.&#40;b&#41; ./ &#40;F.&#40;b&#41; .- F&#40;a&#41;&#41; / 2880&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int7.png" alt=""> 
+  </figure>
+  
+<p>As fórmulas com 3 pontos, como esperávamos, são melhores que as de 2 ou 1 pontos. O erro também passou a ser proporcional a \(f^{(4)}(\xi)\), de modo que podemos calcular a integral exata de polinômios até grau 3.</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; x^3 &#43; x^2 &#43; x &#43; 1
+F&#40;x&#41; &#61; x^4/4 &#43; x^3/3 &#43; x^2/2 &#43; x
+a, b &#61; 0, 1
+simpson&#40;f, a, b&#41; - &#40;F&#40;b&#41; - F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >4.440892098500626e-16</code></pre>
+<p>No entanto, quando passamos para 4 pontos, não temos a mesma sorte. Assim como a transição do ponto-médio ao trapézio aberto, não temos melhoria na ordem de convergência da aproximação, nem para a fórmula fechada nem para a fórmula aberta. Esse fenômeno se repete, de modo que criar interpolações com cada vez mais pontos se torna tanto inviável quanto ineficaz.</p>
+<h2 id="composição_de_aproximações_ou_repetição"><a href="#composição_de_aproximações_ou_repetição" class=header-anchor >Composição de aproximações &#40;ou repetição&#41;</a></h2>
+<p>A outra estratégia para melhorar a aproximação no cálculo da integral é quebrando o intervalo em pedaços menores e aproximando cada pedaço.</p>
+<p>Em outras palavras, transformamos o intervalo em \(a = x_1 < x_2 < \dots < x_m = b\), com \(x_{i+1} - x_i = h = \frac{b-a}{m-1}\) no caso fechado e em \(a = x_0 < x_1 < x_2 < \dots < x_m < x_{m+1} = b\), com \(x_{i+1} - x_i = h = \frac{b-a}{m+1}\) no caso aberto.</p>
+<p>Note que no caso aberto criamos dois pontos extras \(x_0 = a\) e \(x_{m+1} = b\), para deixar mais simples o entendimento.</p>
+<p>Com os intervalos separados, utilizamos as fórmulas dos métodos &quot;encaixando&quot; os pontos da fórmula na discretização que fizemos.</p>
+<p>O exemplo mais fácil de entender é o da regra do trapézio. Veja abaixo, onde quebramos o intervalo \([-2,2]\) em 4 intervalos &#40;i.e., \(m = 5\)&#41;.</p>
+<ul>
+<li>
+</ul>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41; &#43; cos&#40;3π*x&#41; * 0.5 &#43; 3
+a, b &#61; -2, 2
+p &#61; plot&#40;f, a, b, c&#61;:red, lw&#61;2, fill&#61;&#40;0,:red,0.3&#41;, leg&#61;false&#41;
+m &#61; 5
+h &#61; &#40;b - a&#41; / &#40;m - 1&#41;
+
+for i &#61; 1:m-1
+    xi &#61; a &#43; &#40;i-1&#41; * h
+    xip &#61; xi &#43; h
+    L&#40;x&#41; &#61; f&#40;xi&#41; &#43; &#40;x-xi&#41; * &#40;f&#40;xip&#41; - f&#40;xi&#41;&#41; / h
+    plot&#33;&#40;p, L, xi, xip, c&#61;:blue, fill&#61;&#40;0,:blue,0.4&#41;&#41;
+    scatter&#33;&#40;&#91;xi; xip&#93;, &#91;f&#40;xi&#41;; f&#40;xip&#41;&#93;, c&#61;:blue, ms&#61;5&#41;
+end
+xticks&#33;&#40;a:h:b, &#91;&quot;x&#36;i&quot; for i &#61; 1:m&#93;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int8.png" alt=""> 
+  </figure>
+  
+<ul>
+<li>
+</ul>
+<p>Na teoria, temos agora</p>
+\[\begin{aligned}
+\int_a^b f(x)\text{d}x
+& = \int_{x_1}^{x_4} f(x)\text{d}x \\
+& = \int_{x_1}^{x_2} f(x)\text{d}x +
+\int_{x_2}^{x_3} f(x)\text{d}x +
+\int_{x_3}^{x_4} f(x)\text{d}x \\
+& = \frac{x_2 - x_1}{2}[f(x_1) + f(x_2)]
+- \frac{(x_2 - x_1)^3}{12}f''(\xi_1) \\
+& + \frac{x_3 - x_2}{2}[f(x_2) + f(x_3)]
+- \frac{(x_3 - x_2)^3}{12}f''(\xi_2) \\
+& + \frac{x_4 - x_3}{2}[f(x_3) + f(x_4)]
+- \frac{(x_4 - x_3)^3}{12}f''(\xi_3) \\
+& = \frac{h}{2}[f(x_1) + 2f(x_2) + 2f(x_3) + f(x_4)] - \frac{h^3}{12}[f''(\xi_1) + f''(\xi_2) + f''(\xi_3)],
+\end{aligned}\]
+<p>onde \(\xi_i\) está no intervalo \([x_i,x_{i+1}]\).</p>
+<p>O erro dessa aproximação continua sendo apenas \(h^3\), apesar de usarmos 4 pontos. Porém, a escolha do \(h\) é arbitrário, de modo que podemos escolher um \(h\) pequeno o suficiente para satisfazer nossas necessidades.</p>
+<p>De uma maneira mais geral, temos</p>
+\[ \int_a^b f(x)\text{d}x = \frac{h}{2}[f(x_1) + 2\sum_{i = 2}^{m-1}f(x_i) + f(x_m)] - \frac{h^3}{12}\sum_{i=1}^{m-1}f''(\xi_i).
+\]
+<p>A seguir uma implementação básica desse método.</p>
+<pre><code class=language-julia >function trapezio_composto&#40;f, a, b; m &#61; 10&#41; # Note que não faremos mais o trapézio aberto.
+    h &#61; &#40;b - a&#41; / &#40;m - 1&#41;
+    I &#61; 0.0
+    xi &#61; a
+    for i &#61; 2:m-1
+        xi &#43;&#61; h
+        I &#43;&#61; f&#40;xi&#41;
+    end
+    I &#61; f&#40;a&#41; &#43; 2I &#43; f&#40;b&#41;
+    return I * h / 2
+end
+
+f&#40;x&#41; &#61; log&#40;x&#41;
+F&#40;x&#41; &#61; x * log&#40;x&#41; - x
+a, b &#61; 1, MathConstants.e
+println&#40;&quot;∫f&#40;x&#41;dx &#61; &#36;&#40;F&#40;b&#41; - F&#40;a&#41;&#41;&quot;&#41;
+for m &#61; 10:10:100
+    Ia &#61; trapezio_composto&#40;f, a, b, m&#61;m&#41;
+    Ir &#61; F&#40;b&#41; - F&#40;a&#41;
+    E &#61; abs&#40;Ir - Ia&#41; / abs&#40;Ir&#41;
+    println&#40;&quot;∫f&#40;x&#41;dx ≈ &#36;Ia, Erro Relativo &#61; &#36;E&quot;&#41;
+end</code></pre><pre><code class=plaintext >∫f(x)dx = 1.0
+∫f(x)dx ≈ 0.9980833759447165, Erro Relativo = 0.001916624055283478
+∫f(x)dx ≈ 0.9995693517566672, Erro Relativo = 0.0004306482433328318
+∫f(x)dx ≈ 0.9998151007522933, Erro Relativo = 0.00018489924770670463
+∫f(x)dx ≈ 0.9998977564240852, Erro Relativo = 0.0001022435759148177
+∫f(x)dx ≈ 0.9999352278141773, Erro Relativo = 6.47721858226813e-5
+∫f(x)dx ≈ 0.9999553228987321, Erro Relativo = 4.467710126787594e-5
+∫f(x)dx ≈ 0.9999673340126417, Erro Relativo = 3.2665987358293513e-5
+∫f(x)dx ≈ 0.9999750802897797, Erro Relativo = 2.491971022033912e-5
+∫f(x)dx ≈ 0.9999803655228863, Erro Relativo = 1.963447711372801e-5
+∫f(x)dx ≈ 0.9999841316957123, Erro Relativo = 1.58683042876806e-5
+</code></pre>
+<p>Agora vejamos a regra do ponto médio. Note que não queremos os extremos do intervalo, e além disso, calculamos \(f\) no ponto médio. Isso quer dizer que, na prática, existem 3 pontos envolvidos, apesar do cálculo da \(f\) apenas em um deles. Isso quer dizer que separamos o intervalo \([a,b]\) de dois em dois pontos.</p>
+<p>Lembrando que, neste caso, mudamos a definição dos pontos para \(h = \dfrac{b - a}{m + 1}\) e \(x_0 = a\) e \(x_{m+1} = b\).</p>
+<p>Por exemplo, usando \(m = 5\),</p>
+\[\begin{aligned}
+\int_a^b f(x)\text{d}x & = \int_{x_0}^{x_6} f(x)\text{d}x \\
+& = \int_{x_0}^{x_2} f(x)\text{d}x
++ \int_{x_2}^{x_4} f(x)\text{d}x
++ \int_{x_4}^{x_6} f(x)\text{d}x \\
+& = (x_2 - x_0)f(x_1) + \frac{(x_2-x_0)^3}{24}f''(\xi_1)
++ (x_4 - x_2)f(x_3) + \frac{(x_4-x_2)^3}{24}f''(\xi_2) \\
+& \quad + (x_6 - x_4)f(x_5) + \frac{(x_6-x_4)^3}{24}f''(\xi_3) \\
+& = 2h[f(x_1) + f(x_3) + f(x_5)] + \frac{h^3}{3}[f''(\xi_1) + f''(\xi_2) + f''(\xi_3)].
+\end{aligned}\]
+<p>Pode parecer estranho pular tantos pontos, e ainda o fato do intervalo mudar, mas graficamente isso fica mais claro.</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41; &#43; cos&#40;3π*x&#41; * 0.5 &#43; 3
+a, b &#61; -2, 2
+p &#61; plot&#40;f, a, b, c&#61;:red, lw&#61;2, fill&#61;&#40;0,:red,0.3&#41;, leg&#61;false&#41;
+m &#61; 5
+h &#61; &#40;b - a&#41; / &#40;m &#43; 1&#41;
+
+for i &#61; 1:2:m
+    xi &#61; a &#43; i * h
+    plot&#33;&#40;p, x-&gt;f&#40;xi&#41;, xi - h, xi &#43; h, c&#61;:blue, fill&#61;&#40;0,:blue,0.4&#41;&#41;
+    scatter&#33;&#40;&#91;xi&#93;, &#91;f&#40;xi&#41;&#93;, ms&#61;5, c&#61;:blue&#41;
+end
+xticks&#33;&#40;a:h:b, &#91;&quot;x&#36;i&quot; for i &#61; 0:m&#43;1&#93;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int9.png" alt=""> 
+  </figure>
+  
+<p>De uma maneira mais geral, temos</p>
+\[ \int_a^b f(x)\text{d}x = 2h\sum_{i = 1}^{(m+1)/2}f(x_{2i}) + \frac{h^3}{3}\sum_{i=1}^{(m+1)/2}f''(\xi_i).
+\]
+<p>Assumimos \(m\) ímpar.</p>
+<p>A implementação está abaixo.</p>
+<pre><code class=language-julia >function ponto_medio_composto&#40;f, a, b; m &#61; 10&#41;
+    I &#61; 0.0
+    if m&#37;2 &#61;&#61; 0 # Se m não for ímpar, usamos m &#43; 1
+        m &#43;&#61; 1
+    end
+    h &#61; &#40;b - a&#41; / &#40;m &#43; 1&#41;
+    xi &#61; a &#43; h
+    for i &#61; 1:2:m
+        I &#43;&#61; f&#40;xi&#41;
+        xi &#43;&#61; 2h
+    end
+    return I * 2 * h
+end
+
+f&#40;x&#41; &#61; log&#40;x&#41;
+F&#40;x&#41; &#61; x * log&#40;x&#41; - x
+a, b &#61; 1, MathConstants.e
+Ir &#61; F&#40;b&#41; - F&#40;a&#41;
+println&#40;&quot;∫f&#40;x&#41;dx &#61; &#36;Ir&quot;&#41;
+for m &#61; 10:10:100
+    Ia &#61; ponto_medio_composto&#40;f, a, b, m&#61;m&#41;
+    E &#61; abs&#40;Ir - Ia&#41; / abs&#40;Ir&#41;
+    println&#40;&quot;∫f&#40;x&#41;dx ≈ &#36;Ia, Erro Relativo &#61; &#36;E&quot;&#41;
+end</code></pre><pre><code class=plaintext >∫f(x)dx = 1.0
+∫f(x)dx ≈ 1.0021449681894743, Erro Relativo = 0.0021449681894742945
+∫f(x)dx ≈ 1.0006413118189519, Erro Relativo = 0.000641311818951884
+∫f(x)dx ≈ 1.0003034587984303, Erro Relativo = 0.00030345879843030055
+∫f(x)dx ≈ 1.0001762318521485, Erro Relativo = 0.0001762318521485451
+∫f(x)dx ≈ 1.0001149912122405, Erro Relativo = 0.00011499121224045616
+∫f(x)dx ≈ 1.0000808978878688, Erro Relativo = 8.08978878688027e-5
+∫f(x)dx ≈ 1.0000599909536767, Erro Relativo = 5.999095367670293e-5
+∫f(x)dx ≈ 1.000046253318927, Erro Relativo = 4.6253318926936515e-5
+∫f(x)dx ≈ 1.0000367458831187, Erro Relativo = 3.674588311874949e-5
+∫f(x)dx ≈ 1.0000298946794866, Erro Relativo = 2.989467948655289e-5
+</code></pre>
+<h3 id=erro_das_compostas ><a href="#erro_das_compostas" class=header-anchor >Erro das compostas</a></h3>
+<p>Vejamos o que acontece agora com o erro das aproximações compostas.</p>
+<p>Para o ponto médio, temos</p>
+\[ E^{(m)}_{PM} = \int_a^b f(x)\text{d}x - 2h\sum_{i = 1}^{(m+1)/2}f(x_{2i})
+= \frac{h^3}{3}\sum_{i=1}^{(m+1)/2}f''(\xi_i).
+\]
+<p>Agora é importante notar que \(\xi_i \in [x_{2i-1},x_{2i+1}] \subset [a,b]\). Então, pelo Teorema do Valor Extremo aplicado à função \(f''\), temos</p>
+\[ \min_{x \in [a,b]} f''(x) \leq f''(\xi_i) \leq \max_{x \in [a,b]} f''(x). \]
+<p>Aplicando o somatório,</p>
+\[ \frac{m+1}{2}\min_{x \in [a,b]} f''(x) \leq \sum_{i=1}^{(m+1)/2} f''(\xi_i)
+\leq \frac{m+1}{2}\max_{x \in [a,b]} f''(x), \]
+<p>que vira</p>
+\[ \min_{x \in [a,b]} f''(x) \leq \frac{2}{m+1} \sum_{i=1}^{(m+1)/2}f''(\xi_i) \leq \max_{x \in [a,b]} f''(x). \]
+<p>Pelo Teorema do Valor Intermediário, existe \(\mu \in [a,b]\) tal que</p>
+\[ \frac{2}{m+1} \sum_{i=1}^{(m+1)/2} f''(\xi_i) = f''(\mu). \]
+<p>Assim,</p>
+\[ E^{(m)}_{PM} = \frac{h^3}{3}\frac{m+1}{2}f''(\mu). \]
+<p>Como \(h = \dfrac{b-a}{m+1}\), podemos escrever também</p>
+\[ E^{(m)}_{PM} = \frac{h^2(b-a)}{6}f''(\mu)
+= \frac{(b-a)^3}{6(m+1)^2}f''(\mu).
+\]
+<p>Para o método do Trapézio,</p>
+\[ E_{TR}^{(m)} = \int_a^b f(x)\text{d}x - \frac{h}{2}[f(x_1) + 2\sum_{i = 2}^{m-1}f(x_i) + f(x_m)] = - \frac{h^3}{12}\sum_{i=1}^{m-1}f''(\xi_i).
+\]
+<p>Por argumentos similares,</p>
+\[ E_{TR}^{(m)} = - \frac{h^3}{12}\frac{1}{m-1}f''(\mu)
+= -\frac{h^2(b-a)}{12}f''(\mu)
+= -\frac{(b-a)^3}{12(m-1)^2}f''(\mu).\]
+<pre><code class=language-julia >tanh&#40;100&#41;
+
+f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+a, b &#61; 0, 1
+cores &#61; &#91;:blue, :red, :magenta&#93;
+p &#61; scatter&#40;leg&#61;false, xaxis&#61;:log, yaxis&#61;:log&#41;
+Ireal &#61; F&#40;b&#41; - F&#40;a&#41;
+for &#40;i,mtd&#41; in enumerate&#40;&#91;ponto_medio_composto, trapezio_composto&#93;&#41;
+    for m &#61; 2 .^ &#40;2:15&#41;
+        Iapprox &#61; mtd&#40;f, a, b, m&#61;m&#41;
+        E &#61; abs&#40;Ireal - Iapprox&#41; / Ireal
+        scatter&#33;&#40;p, &#91;m&#93;, &#91;E&#93;, c&#61;cores&#91;i&#93;&#41;
+    end
+end
+n &#61; &#91;1; 2^16&#93;
+plot&#33;&#40;n, &#40;1 ./ n&#41;.^2 / 6&#41;
+xlims&#33;&#40;1.0, 2^16&#41;
+ylims&#33;&#40;1e-11, 1e-1&#41;
+png&#40;joinpath&#40;@OUTPUT, &quot;fig-int10&quot;&#41;&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int10.png" alt=""> 
+  </figure>
+  
+<p>Com esse erro em mãos, podemos calcular limitantes para o erro cometido por uma aproximação sabendo a função. Por exemplo, na integração da função \(f(x) = e^x\), com \(m = 100\), de \(0\) a \(1\), os erros exatos serão</p>
+\[ E_{PM} = \frac{(b-a)^3}{6(m+1)^2}f''(\mu) = \frac{(1-0)^3}{6\times101^2}e^{\mu} = \frac{e^{\mu}}{61206},\]
+<p>e</p>
+\[ E_{TR} = -\frac{(b-a)^3}{12(m-1)^2}f''(\mu) = -\frac{(1-0)^3}{12\times99^2}e^{\mu} = -\frac{e^{\mu}}{117612}. \]
+<p>Esse valor depende de \(\mu \in [0,1]\), e é desconhecido. Porém, podemos limitar esse erro, usando um limitante para \(|f''(\mu)|\). No caso desta função \(f\), neste intervalo, temos \(e^\mu \leq e^1 = e\). Daí,</p>
+\[ |E_{PM}| \leq \frac{e}{61206} \approx 4.44\times10^{-5}, \]
+<p>e</p>
+\[ |E_{TR}| \leq \frac{e}{117612} \approx 2.31\times10^{-5}. \]
+<p>De fato, aplicando o método temos</p>
+<pre><code class=language-julia >f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+a, b &#61; 0, 1
+Ir &#61; F&#40;b&#41; - F&#40;a&#41;
+println&#40;&quot;E_PM &#61; &#36;&#40;Ir - ponto_medio_composto&#40;f, a, b, m&#61;100&#41;&#41;&quot;&#41;
+println&#40;&quot;E_TR &#61; &#36;&#40;Ir - trapezio_composto&#40;f, a, b, m&#61;100&#41;&#41;&quot;&#41;</code></pre><pre><code class=plaintext >E_PM = 2.7525672183781325e-5
+E_TR = -1.4609724402259161e-5
+</code></pre>
+<p>Isso também nos permite buscar o \(m\) ou \(h\) que faça com que o erro seja menor que uma certa tolerância. Por exemplo, para o ponto médio, se quisermos que o erro seja menor que \(\varepsilon\), temos que fazer o seguinte.</p>
+<p>Primeiro, veja que</p>
+\[ |E_{PM}| \leq \frac{h^2(b-a)}{6}M_2, \]
+<p>onde \(M_2 = \max_{x\in[a,b]}|f''(x)|\). Daí, basta que o lado direito seja limitado por \(\varepsilon\), isto é, que</p>
+\[ \frac{h^2(b-a)}{6}M_2 \leq \varepsilon. \]
+<p>O \(h\) que satisfaz isso é tal que</p>
+\[ h \leq \sqrt{  \frac{6\varepsilon}{M_2(b-a)} }. \]
+<p>Se quisermos \(m\), podemos refazer a conta usando a fórmula com \(m\), ou tirar \(m\) do resultado, usando \(h = \dfrac{b-a}{m+1}\):</p>
+\[ m = \frac{b-a}{h} - 1 \geq (b-a)\sqrt{ \frac{M_2(b-a)}{6\varepsilon} } - 1
+\]
+<p>Por exemplo, se quisermos o erro menor que \(\varepsilon = 10^{-7}\), para a mesma função, no mesmo intervalo, devemos ter</p>
+<pre><code class=language-julia >a, b &#61; 0, 1
+M2 &#61; exp&#40;b&#41; # Pois exp&#40;x&#41; é crescente
+ε &#61; 1e-7
+hmax &#61; sqrt&#40;6ε / M2 * &#40;b - a&#41;&#41;
+
+mmin &#61; &#40;b-a&#41;/hmax - 1</code></pre><pre><code class=plaintext >2127.4900079865088</code></pre>
+<p>De maneira mais precisa</p>
+<pre><code class=language-julia >mmin &#61; ceil&#40;Int, &#40;b-a&#41;/hmax - 1&#41;
+
+ponto_medio_composto&#40;f, 0, 1, m&#61;mmin&#41; - &#40;F&#40;b&#41; - F&#40;a&#41;&#41;</code></pre><pre><code class=plaintext >-6.312245792727822e-8</code></pre>
+<h3 id=simpson_composta ><a href="#simpson_composta" class=header-anchor >Simpson composta</a></h3>
+<p>De maneira similar, podemos fazer a regra de Simpson composta. Note que utilizamos um ponto a mais, de modo que aplicaremos a regra de dois em dois pontos. Note que \(m\) deve ser ímpar.</p>
+\[ \int_a^b f(x)\text{d}x =
+\frac{h}{3}[f(x_{1}) +
+2\sum_{i = 1}^{(m-1)/2-1}f(x_{2i+1}) +
+4\sum_{i = 1}^{(m-1)/2}f(x_{2i}) +
+f(x_m)] + E_{SP},
+\]
+<p>com o erro \(E_{SP}\) sendo</p>
+\[ E_{SP} = -\frac{(b-a)h^4}{180}f^{(4)}(\mu)
+= -\frac{(b-a)^5}{180(m-1)^4}f^{(4)}(\mu). \]
+<pre><code class=language-julia >function simpson_composto&#40;f, a, b; n &#61; 100&#41; # n eh o numero de pontos
+    #Implemente
+    if n &#37; 2 &#61;&#61; 0
+        n &#61; n &#43; 1
+    end
+    h &#61; &#40;b - a&#41; / &#40;n - 1&#41;
+    I2 &#61; I4 &#61; 0.0
+    x &#61; a &#43; 2h
+    for i &#61; 3:2:n-2
+        I2 &#43;&#61; f&#40;x&#41;
+        x &#43;&#61; h
+        I4 &#43;&#61; f&#40;x&#41;
+        x &#43;&#61; h
+    end
+    return &#40;f&#40;a&#41; &#43; 4 * f&#40;a &#43; h&#41; &#43; 4I4 &#43; 2I2 &#43; f&#40;b&#41;&#41; * h / 3
+end
+
+simpson_composto&#40;exp, 0, 1, n &#61; 100&#41; - &#40;exp&#40;1&#41; - 1&#41;</code></pre><pre><code class=plaintext >9.545986223713498e-11</code></pre>
+<pre><code class=language-julia >using Plots
+gr&#40;&#41;
+
+f&#40;x&#41; &#61; exp&#40;x&#41;
+F&#40;x&#41; &#61; exp&#40;x&#41;
+a, b &#61; 0, 1
+p &#61; scatter&#40;leg&#61;false, xaxis&#61;:log, yaxis&#61;:log&#41;
+Ireal &#61; F&#40;b&#41; - F&#40;a&#41;
+for n &#61; 2 .^ &#40;2:15&#41;
+    Iapprox &#61; simpson_composto&#40;f, a, b, n&#61;n&#41;
+    E &#61; abs&#40;Ireal - Iapprox&#41; / Ireal
+    scatter&#33;&#40;p, &#91;n&#93;, &#91;E&#93;, c&#61;:blue&#41;
+end
+n &#61; &#91;1; 2^16&#93;
+plot&#33;&#40;n, &#40;1 ./ n&#41;.^4 / 180&#41;
+xlims&#33;&#40;1.0, 2^16&#41;
+ylims&#33;&#40;1e-16, 1e-1&#41;</code></pre>
+
+  <figure style="text-align: center">
+   <img src="/calculo-numerico/assets/calculo-numerico/integracao-numerica/code/output/fig-int11.png" alt=""> 
+  </figure>
+  
+<pre><code class=language-julia >sqrt&#40;pi&#41;</code></pre><pre><code class=plaintext >1.7724538509055159</code></pre>
+<pre><code class=language-julia >trapezio_composto&#40;x-&gt;exp&#40;-x^2&#41;, -6, 6, m&#61;100&#41; - sqrt&#40;pi&#41;</code></pre><pre><code class=plaintext >4.440892098500626e-16</code></pre>
+<pre><code class=language-julia >sqrt&#40;-log&#40;1e-16&#41;&#41;</code></pre><pre><code class=plaintext >6.069708517540586</code></pre>
+\[\int_{-1}^1 \frac{1}{\sqrt{1 - x^2}} \text{d}x = \pi.\]
+<pre><code class=language-julia >f&#40;x&#41; &#61; 1 / sqrt&#40;1 - x^2&#41;
+simpson_composto&#40;f, -1, 1&#41;</code></pre><pre><code class=plaintext >Inf</code></pre>
+<pre><code class=language-julia >plot&#40;f, -0.9, 0.9&#41;</code></pre><pre><code class=plaintext >Plot{Plots.GRBackend() n=1}</code></pre>
+<pre><code class=language-julia >f&#40;1.0 - 1e-8&#41;</code></pre><pre><code class=plaintext >7071.067813726424</code></pre>
+<pre><code class=language-julia >a &#61; 1e-11
+simpson_composto&#40;f, -1&#43;a, 1-a, n&#61;1000&#41;
+
+function ponto_medio&#40;f, a, b; n&#61;100&#41;
+    #Implemente
+end
+
+ponto_medio&#40;exp, 0, 1, n&#61;1000&#41; - &#40;exp&#40;1&#41; - 1&#41;</code></pre><pre><code class=plaintext >MethodError: no method matching -(::Nothing, ::Float64)
+Closest candidates are:
+  -(!Matched::GeometryBasics.HyperRectangle{N, T}, ::Number) where {N, T} at /home/runner/.julia/packages/GeometryBasics/qasyR/src/primitives/rectangles.jl:266
+  -(!Matched::Base.TwicePrecision, ::Number) at twiceprecision.jl:281
+  -(!Matched::LinearAlgebra.UniformScaling, ::Number) at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.6/LinearAlgebra/src/uniformscaling.jl:147
+  ...
+</code></pre>
+<pre><code class=language-julia >ponto_medio&#40;f, -1, 1, n&#61;1000&#41; - pi</code></pre><pre><code class=plaintext >MethodError: no method matching -(::Nothing, ::Irrational{:π})
+Closest candidates are:
+  -(!Matched::GeometryBasics.HyperRectangle{N, T}, ::Number) where {N, T} at /home/runner/.julia/packages/GeometryBasics/qasyR/src/primitives/rectangles.jl:266
+  -(!Matched::Base.TwicePrecision, ::Number) at twiceprecision.jl:281
+  -(!Matched::LinearAlgebra.UniformScaling, ::Number) at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.6/LinearAlgebra/src/uniformscaling.jl:147
+  ...
+</code></pre>
+<pre><code class=language-julia >ponto_medio&#40;x -&gt; x * log&#40;x&#41;, 0, 1, n&#61;1000&#41;</code></pre>
+<pre><code class=language-julia >x&#40;t&#41; &#61; tanh&#40;pi * sinh&#40;t&#41; / 2&#41;
+plot&#40;x, -5, 5&#41;</code></pre><pre><code class=plaintext >Plot{Plots.GRBackend() n=1}</code></pre>
+<h1 id=quadratura_gaussiana ><a href="#quadratura_gaussiana" class=header-anchor >Quadratura Gaussiana</a></h1>
+<p>A ideia da quadratura Gaussiana é obter a propriedade de integrar exatamente polinômios do maior grau possível.</p>
+\[ \int_{-1}^1 g(t) \text{d}t \approx \sum_{i=1}^m A_i g(t_i). \]
+<h3 id=m_1 ><a href="#m_1" class=header-anchor >m &#61; 1</a></h3>
+<ul>
+<li><p>\(g(t) = 1\) implica em \(\int_{-1}^1\text{d}t = 2 = A_1\)</p>
+
+<li><p>\(g(t) = t\) implica em \(\int_{-1}^1\text{d}t = 0 = A_1 t_1\)</p>
+
+</ul>
+<p>Os únicos valores que satisfazem essas condições são \(A_1 = 2\) e \(t_1 = 0\), isto é</p>
+\[ \int_{-1}^1 g(t)\text{d}t \approx 2g(0). \]
+<h3 id=m_2 ><a href="#m_2" class=header-anchor >m &#61; 2</a></h3>
+<ul>
+<li><p>\(g(t) = 1\) implica em \(\int_{-1}^1\text{d}t = 2 = A_1 + A_2\)</p>
+
+<li><p>\(g(t) = t\) implica em \(\int_{-1}^1\text{d}t = 0 = A_1 t_1 + A_2 t_2\)</p>
+
+<li><p>\(g(t) = t^2\) implica em \(\int_{-1}^1\text{d}t = 0 = A_1 t_1^2 + A_2 t_2^2\)</p>
+
+<li><p>\(g(t) = t^3\) implica em \(\int_{-1}^1\text{d}t = 0 = A_1 t_1^3 + A_3 t_2^3\)</p>
+
+</ul>
+<p>Os únicos valores que satisfazem essas condições são \(A_1 = A_2 = 1\) e \(t_1 = -\sqrt{3}/3 = -t_2\), isto é</p>
+\[ \int_{-1}^1 g(t)\text{d}t \approx g\bigg(-\frac{\sqrt{3}}{3}\bigg) + g\bigg(\frac{\sqrt{3}}{3}\bigg). \]
+<p>Note que as integrais acima são de \(-1\) a \(1\). Para obter o resultado de uma integral de \(a\) a \(b\) fazemos a mudança de variáveis \(x = \dfrac{a+b}{2} + \dfrac{b-a}{2}t\).</p>
+\[ \int_a^b f(x) \text{d}x =
+\int_{-1}^1 f(x(t)) \frac{b-a}{2}\text{d}t
+\approx \frac{b-a}{2}\sum_{i=1}^m A_i f(x(t_i)). \]
+<p>No caso \(m = 1\), note que a integral vira a integral do ponto médio.</p>
+<pre><code class=language-julia >r &#61; sqrt&#40;3&#41; / 3
+QG2 &#61; exp&#40;-r&#41; &#43; exp&#40;r&#41;</code></pre><pre><code class=plaintext >2.3426960879097307</code></pre>
+<pre><code class=language-julia >exato &#61; exp&#40;1&#41; - exp&#40;-1&#41;</code></pre><pre><code class=plaintext >2.3504023872876028</code></pre>
+<pre><code class=language-julia >erro_abs &#61; abs&#40;exato - QG2&#41;</code></pre><pre><code class=plaintext >0.007706299377872039</code></pre>
+<pre><code class=language-julia >erro_rel &#61; erro_abs / abs&#40;exato&#41;</code></pre><pre><code class=plaintext >0.003278714921135362</code></pre>
+<h2 id="exercícios"><a href="#exercícios" class=header-anchor >Exercícios</a></h2>
+<p>Exercícios do capítulo 7 do livro Cálculo Numérico de Ruggiero e Lopes.</p>
+<ol>
+<li><p>Calcule aproximações para as seguintes integrais, usando os métodos do ponto médio, do trapézio e de Simpson repetidos. Faça com três números de intervalos diferentes e compare os resultados.</p>
+
+</ol>
+<ul>
+<li><p>\(\displaystyle \int_{ 0}^{ 1}\! { e^x}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ 0}^{ 1}\! { 1}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ 0}^{ 1}\! { x}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ 0}^{ 1}\! { x^2}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ 0}^{ 1}\! { x^3}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ 1}^{ e}\! { \log x}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ -10}^{ 10}\! { \dfrac{1}{x^2+1}}\text{d}x\)</p>
+
+<li><p>\(\displaystyle \int_{ -\pi}^{ \pi}\! { \sin x}\text{d}x\)</p>
+
+</ul>
+<ol start=2 >
+<li><p>Para cada integral acima, calcule quantos pontos são necessários para se obter um erro menor que \(10^{-6}\).</p>
+
+<li><p>Considere a função \(f\) contínua no intervalo \([a,b]\),</p>
+
+</ol>
+<p>e a função \(p\) dada por</p>
+\[ p(x) = f(a) + \alpha (x-a) + \beta (x - a)(x - c), \]
+<p>onde \(c = \dfrac{a+b}{2}\) é o ponto médio do intervalo \([a,b]\), \(\alpha = \dfrac{f(c) - f(a)}{h}\), e \(\beta = \dfrac{f(b) - 2f(c) + f(a)}{2h^2}\), com \(h = c - a = b - c\).</p>
+<ul>
+<li><p>Mostre que \(p\) passa nos pontos \((a,f(a))\), \((b,f(b))\) e \((c,f(c))\).</p>
+
+<li><p>Calcule a integral de \(p\) de \([a,b]\) e interprete o resultado.</p>
+
+</ul>
+
+</div>
+</div>
+</div>
+
+<footer>
+<div class="container-fluid text-center social-footer">
+    <a href="mailto:abel.s.siqueira@gmail.com">
+        <i class="fas fa-2x fa-envelope" aria-hidden=true ></i>
+    </a><a href="https://github.com/abelsiqueira">
+        <i class="fab fa-2x fa-github-square" aria-hidden=true ></i>
+    </a><a href="https://linkedin.com/in/abel-siqueira/">
+        <i class="fab fa-2x fa-linkedin" aria-hidden=true ></i>
+    </a><a href="https://twitter.com/abel_siqueira">
+        <i class="fab fa-2x fa-twitter-square" aria-hidden=true ></i>
+    </a><a href="https://www.researchgate.net/profile/Abel_Siqueira">
+        <i class="fab fa-2x fa-researchgate" aria-hidden=true ></i>
+    </a><a href="http://orcid.org/0000-0003-4451-281X">
+        <i class="fab fa-2x fa-orcid" aria-hidden=true ></i>
+    </a>
+</div>
+</footer>
+
+
+<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
+<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+
+
+<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+
+<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>
