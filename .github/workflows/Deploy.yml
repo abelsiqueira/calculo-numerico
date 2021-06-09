@@ -32,11 +32,12 @@ jobs:
       with:
         version: 1.6
     - name: Clone abelsiqueira.github.io
-      run:
-        - wget https://github.com/abelsiqueira/abelsiqueira.github.io/archive/refs/heads/main.zip
-        - unzip main.zip
-        - mv abelsiqueira.github.io-main/_layout .
-        - mv abelsiqueira.github.io-main/_css .
+      run: |
+        wget https://github.com/abelsiqueira/abelsiqueira.github.io/archive/refs/heads/main.zip
+        unzip main.zip
+        mv abelsiqueira.github.io-main/_layout .
+        mv abelsiqueira.github.io-main/_css .
+        rm -rf abelsiqueira.github.io-main main.zip
     - run: julia -e '
             using Pkg; Pkg.activate("."); Pkg.instantiate();
             using NodeJS; run(`$(npm_cmd()) install highlight.js`);
