@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Aproximações de Números e Funções por Sequências e Séries</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="aproximações_de_números_e_funções_por_sequências_e_séries"><a href="#aproximações_de_números_e_funções_por_sequências_e_séries" class=header-anchor >Aproximações de Números e Funções por Sequências e Séries</a></h1> <p>Os objetivos desta lição são</p> <ul> <li><p>Identificar como lidar com sequências e séries em programação;</p> <li><p>Entender que elementos anteriores da sequência são substituídos;</p> <li><p>Tentar gastar o mínimo de elementos e variáveis &#40;mantendo a clareza&#41;;</p> <li><p>Tomar cuidado com overflow e underflow;</p> <li><p>Relembrar/treinar a programação.</p> </ul> <h2 id="sequências"><a href="#sequências" class=header-anchor >Sequências</a></h2> <p>Uma sequência em matemática é um conjunto de valores ordenados:</p> \[ (a_1, a_2, a_3, \dots, a_n, \dots) \] <p>O índice \(1\) usado no primeiro elemento é arbitrário, e serve para normalizar essa ordem. Em alguns casos é mais interessante começar com o índice \(0\).</p> <p>Matematicamente, costumamos estar interessados na convergência dessa sequência. No entanto, podemos utilizar uma sequência por outros motivos. Computacionalmente, estamos interessados em <strong>como obter os elementos de uma sequência, quando necessário.</strong></p> <p>É importante ressaltar aqui a importância da frase <strong>quando necessário</strong>, pois como veremos a seguir, não é do nosso interesse calcular todos esses valores ao mesmo tempo, e quase sempre também não seria possível.</p> <h3 id=exemplo_1 ><a href="#exemplo_1" class=header-anchor >Exemplo 1</a></h3> <p>Dado um objeto com aceleração constante de \(10 m/s^2\) saindo do repouso, queremos calcular sua posição nos instantes \(t = 0, 0.1, 0.2, 0.3, \dots\). Note que temos uma sequência \(t_n = (n-1)/10\), e queremos uma sequência \(x_n\) das posições.</p> <p>Neste caso, porém, as leis de movimento nos dizem que</p> \[ x(t) = x_0 + v_0 t + \frac{1}{2}at^2, \] <p>que em nosso caso se reduz a</p> \[ x(t) = 5t^2. \] <p>Em outras palavras, a sequência \(x_n\) pode ser calculada diretamente dado \(t_n\), e \(t_n\) também tem uma fórmula geral dado \(n\),</p> \[ x_n = 5\bigg(\frac{n-1}{10}\bigg)^2 = \frac{(n-1)^2}{20}. \] <p>Desse modo, não é necessário guardar nada em especial, pois \(x_n\) pode ser calculado diretamente a partir de \(n\).</p> <h3 id=exemplo_2 ><a href="#exemplo_2" class=header-anchor >Exemplo 2</a></h3> <p>Dado um número \(x \in \mathbb{N}, x > 1\), queremos calcular a sequência de Collatz desse número. Em particular, queremos calcular qual o primeiro elemento que é \(1\) &#40;se houver&#41;.</p> <p>Aqui é importante ressaltar a conjectura de Collatz: Dado um número \(a_1 \in \mathbb{N}\), e a fórmula recursiva</p> \[ a_{n+1} = \left\{\begin{array}{ll} a_n/2, & \text{se } a_n \text{ é par}; \\ 3a_n + 1, & \text{se } a_n \text{ é impar}, \end{array}\right. \] <p>sempre existe um elemento desta sequência tal que \(a_n = 1\). A partir desse ponto a sequência perde a importância. Por exemplo, a sequência de Collatz de 3 é</p> \[ 3 \rightarrow 10 \rightarrow 5 \rightarrow 16 \rightarrow 8 \rightarrow 4 \rightarrow 2 \rightarrow 1 \rightarrow 4 \rightarrow 2 \rightarrow 1 \cdots \] <p>Nessa sequência, é necessário saber quem é o ponto atual, e é impossível saber um elemento arbitrário da sequência em casos gerais. Dessa maneira é preciso calcular elemento a elemento.</p> <p>Lembre-se que para verificar a paridade de um número, utilizamos <code>&#37;</code>.</p> <pre><code class=language-julia >15 &#37; 2</code></pre><pre><code class=plaintext >1</code></pre>
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/katex/katex.min.css"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <link href="/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="/css/code-katex.css"> <link rel=stylesheet  href="/css/custom.css"> <link rel=stylesheet  href="/css/dark-mode.css"> <title>Aproximações de Números e Funções por Sequências e Séries</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/">Home</a> <li class=nav-item ><a class=nav-link  href="/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="aproximações_de_números_e_funções_por_sequências_e_séries"><a href="#aproximações_de_números_e_funções_por_sequências_e_séries" class=header-anchor >Aproximações de Números e Funções por Sequências e Séries</a></h1> <p>Os objetivos desta lição são</p> <ul> <li><p>Identificar como lidar com sequências e séries em programação;</p> <li><p>Entender que elementos anteriores da sequência são substituídos;</p> <li><p>Tentar gastar o mínimo de elementos e variáveis &#40;mantendo a clareza&#41;;</p> <li><p>Tomar cuidado com overflow e underflow;</p> <li><p>Relembrar/treinar a programação.</p> </ul> <h2 id="sequências"><a href="#sequências" class=header-anchor >Sequências</a></h2> <p>Uma sequência em matemática é um conjunto de valores ordenados:</p> \[ (a_1, a_2, a_3, \dots, a_n, \dots) \] <p>O índice \(1\) usado no primeiro elemento é arbitrário, e serve para normalizar essa ordem. Em alguns casos é mais interessante começar com o índice \(0\).</p> <p>Matematicamente, costumamos estar interessados na convergência dessa sequência. No entanto, podemos utilizar uma sequência por outros motivos. Computacionalmente, estamos interessados em <strong>como obter os elementos de uma sequência, quando necessário.</strong></p> <p>É importante ressaltar aqui a importância da frase <strong>quando necessário</strong>, pois como veremos a seguir, não é do nosso interesse calcular todos esses valores ao mesmo tempo, e quase sempre também não seria possível.</p> <h3 id=exemplo_1 ><a href="#exemplo_1" class=header-anchor >Exemplo 1</a></h3> <p>Dado um objeto com aceleração constante de \(10 m/s^2\) saindo do repouso, queremos calcular sua posição nos instantes \(t = 0, 0.1, 0.2, 0.3, \dots\). Note que temos uma sequência \(t_n = (n-1)/10\), e queremos uma sequência \(x_n\) das posições.</p> <p>Neste caso, porém, as leis de movimento nos dizem que</p> \[ x(t) = x_0 + v_0 t + \frac{1}{2}at^2, \] <p>que em nosso caso se reduz a</p> \[ x(t) = 5t^2. \] <p>Em outras palavras, a sequência \(x_n\) pode ser calculada diretamente dado \(t_n\), e \(t_n\) também tem uma fórmula geral dado \(n\),</p> \[ x_n = 5\bigg(\frac{n-1}{10}\bigg)^2 = \frac{(n-1)^2}{20}. \] <p>Desse modo, não é necessário guardar nada em especial, pois \(x_n\) pode ser calculado diretamente a partir de \(n\).</p> <h3 id=exemplo_2 ><a href="#exemplo_2" class=header-anchor >Exemplo 2</a></h3> <p>Dado um número \(x \in \mathbb{N}, x > 1\), queremos calcular a sequência de Collatz desse número. Em particular, queremos calcular qual o primeiro elemento que é \(1\) &#40;se houver&#41;.</p> <p>Aqui é importante ressaltar a conjectura de Collatz: Dado um número \(a_1 \in \mathbb{N}\), e a fórmula recursiva</p> \[ a_{n+1} = \left\{\begin{array}{ll} a_n/2, & \text{se } a_n \text{ é par}; \\ 3a_n + 1, & \text{se } a_n \text{ é impar}, \end{array}\right. \] <p>sempre existe um elemento desta sequência tal que \(a_n = 1\). A partir desse ponto a sequência perde a importância. Por exemplo, a sequência de Collatz de 3 é</p> \[ 3 \rightarrow 10 \rightarrow 5 \rightarrow 16 \rightarrow 8 \rightarrow 4 \rightarrow 2 \rightarrow 1 \rightarrow 4 \rightarrow 2 \rightarrow 1 \cdots \] <p>Nessa sequência, é necessário saber quem é o ponto atual, e é impossível saber um elemento arbitrário da sequência em casos gerais. Dessa maneira é preciso calcular elemento a elemento.</p> <p>Lembre-se que para verificar a paridade de um número, utilizamos <code>&#37;</code>.</p> <pre><code class=language-julia >15 &#37; 2</code></pre><pre><code class=plaintext >1</code></pre>
 <pre><code class=language-julia >14 &#37; 2</code></pre><pre><code class=plaintext >0</code></pre>
 <pre><code class=language-julia >15 &#37; 2 &#61;&#61; 0 # É par ?</code></pre><pre><code class=plaintext >false</code></pre>
 <pre><code class=language-julia >14 &#37; 2 &#61;&#61; 0 # É par ?</code></pre><pre><code class=plaintext >true</code></pre>
@@ -578,7 +578,7 @@ Erro &#61; &#91;abs&#40;exponencial&#40;1.0, n&#41; - exp&#40;1.0&#41;&#41;/exp&
 scatter&#40;N, Erro, yaxis&#61;:log&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp1.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp1.png" alt=""> 
   </figure>
   
 <p>Note que após \(n = 17\), o erro é sempre a precisão da máquina. Isso quer dizer que os termos \(a_n\) com \(n > 17\) não afetam a soma, computacionalmente.</p>
@@ -588,7 +588,7 @@ scatter&#40;N, Erro, yaxis&#61;:log&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;plt-exp2&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp2.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp2.png" alt=""> 
   </figure>
   
 <p>Veja que é erro é muito maior para \(x = 5\) do que para \(x = 1\). Isso acontece porque os termos além de \(n > 20\)  ainda são importantes para a aproximação de \(e^5\). A primeira vista, uma simples solução seria utilizar \(n > 20\), mas veja o que acontece com nossa implementação.</p>
@@ -620,7 +620,7 @@ end
 scatter&#40;E, yaxis&#61;:log&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp3.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp3.png" alt=""> 
   </figure>
   
 <p>Entrada: \(x\) e \(n \geq 0\)</p>
@@ -658,7 +658,7 @@ Erro&#91;findall&#40;Erro .&#61;&#61; 0.0&#41;&#93; .&#61; eps&#40;&#41;
 scatter&#40;N, abs.&#40;Erro&#41;, yaxis&#61;:log&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp4.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp4.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >N &#61; collect&#40;1:50&#41;
@@ -668,7 +668,7 @@ scatter&#40;N, Erro, yaxis&#61;:log&#41;
 ylims&#33;&#40;eps&#40;&#41;/2, 1.0&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp5.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp5.png" alt=""> 
   </figure>
   
 <p>Perceba agora que a função <code>exp</code> não recebe um \(n\) específico. A quantidade de termos calculados é específico para o valor \(x\). Para \(x = 0\), \(n = 0\) basta, para \(x = 1\), \(n = 17\) basta, para \(x = 10\), \(n = 45\) foi necessário.</p>
@@ -706,20 +706,20 @@ end
 plot&#40;x-&gt;exp&#40;x&#41; - exponencial3&#40;x&#41;, 0, 10.0&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp6.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp6.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >plot&#40;x-&gt;abs&#40;exp&#40;x&#41; - exponencial3&#40;x&#41;&#41;/exp&#40;x&#41;, 0, 10.0&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp7.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp7.png" alt=""> 
   </figure>
   
 <p>Por fim, vejamos o que acontece com \(x < 0\).</p>
 <pre><code class=language-julia >plot&#40;x-&gt;abs&#40;exp&#40;x&#41; - exponencial3&#40;x&#41;&#41;/exp&#40;x&#41;, -10.0, 10.0&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp7.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp7.png" alt=""> 
   </figure>
   
 <p>O erro cresce novamente. Isso acontece porque o termo \(t_n\) fica alternando de sinal, e fica pequeno antes de contribuir o suficiente para fazer a diferença necessária. Uma maneira de remediar esse problema é usar a relação \(e^x = \dfrac{1}{e^{-x}}\).</p>
@@ -734,7 +734,7 @@ end
 plot&#40;x-&gt;abs&#40;exp&#40;x&#41; - exponencial4&#40;x&#41;&#41;/exp&#40;x&#41;, -10.0, 10.0&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/sequencias-e-series/code/output/plt-exp8.png" alt=""> 
+   <img src="/assets/sequencias-e-series/code/output/plt-exp8.png" alt=""> 
   </figure>
   
 <h2 id="cálculo_de_pi"><a href="#cálculo_de_pi" class=header-anchor >Cálculo de \(\pi\)</a></h2>
@@ -769,7 +769,7 @@ plot&#40;x-&gt;abs&#40;exp&#40;x&#41; - exponencial4&#40;x&#41;&#41;/exp&#40;x&#
 end
 
 pi_atan&#40;&#41;</code></pre><pre><code class=plaintext >3.1415926545880506</code></pre>
-<pre><code class=language-julia >@time pi_atan&#40;&#41; - pi</code></pre><pre><code class=plaintext >  1.565970 seconds
+<pre><code class=language-julia >@time pi_atan&#40;&#41; - pi</code></pre><pre><code class=plaintext >  1.182689 seconds
 9.982574766809194e-10</code></pre>
 <p>O valor é, de fato, calculado até uma aproximação razoável, mas demora muito e leva muitas iterações. Por sorte, existem dezenas de outras maneiras de se calcular \(\pi\).</p>
 <p>Uma dessas maneiras é a série</p>
@@ -844,7 +844,7 @@ Com 16384 bits obtive 4930 casas
 </code></pre>
 <pre><code class=language-julia >setprecision&#40;2^15&#41;
 @time pi_madhava_BF&#40;&#41;;</code></pre><pre><code class=plaintext >n = 20666
-  1.267607 seconds (206.68 k allocations: 420.997 MiB, 3.05% gc time)
+  1.050171 seconds (206.68 k allocations: 420.997 MiB, 2.97% gc time)
 </code></pre>
 <pre><code class=language-julia >function logaritmo2&#40;&#41;
     ln2 &#61; 1.0 / 2.0
@@ -929,16 +929,16 @@ logaritmo2&#40;&#41; - log&#40;2&#41;</code></pre><pre><code class=plaintext >k 
 </footer>
 
 
-<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
-<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/auto-render.min.js"></script>
 <script>renderMathInElement(document.body)</script>
 
 
 
-<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
 
-<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
 <script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>

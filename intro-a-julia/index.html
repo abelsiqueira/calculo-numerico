@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Linguagem de Programação Matemática - Introdução à Julia</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1>Linguagem de Programação Matemática - Introdução à Julia</h1> <p>Julia é uma linguagem dinâmica de alto nível e alto desempenho. Ela se assemelha ao MatLab e ao Python na facilidade de escrita de código, mas sua velocidade pode ser comparável ao C e Fortran.</p> <h1>Jupyter</h1> <p>O Jupyter é uma interface web para Julia, Python, e muitas outras. Ela não é o Julia, isto é, o Julia não depende do Jupyter para funcionar. No entanto, usando o Jupyter, aulas e apresentações ficam mais práticas.</p> <p>Cada célula do Jupyter pode ser executada com um ctrl&#43;enter, ou um shift&#43;enter, sendo que o último move a seleção para a célula de baixo. Você pode adicionar novas células usando o &#43; no topo da página.</p> <h1>O REPL - Terminal Interativo</h1> <p>Ao abrir o Julia no Windows, ou digitar julia no terminal do Mac ou Linux, se abrirá um prompt tipo</p> <pre><code class=language-julia-repl >julia&gt;</code></pre>
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/katex/katex.min.css"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <link href="/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="/css/code-katex.css"> <link rel=stylesheet  href="/css/custom.css"> <link rel=stylesheet  href="/css/dark-mode.css"> <title>Linguagem de Programação Matemática - Introdução à Julia</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/">Home</a> <li class=nav-item ><a class=nav-link  href="/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1>Linguagem de Programação Matemática - Introdução à Julia</h1> <p>Julia é uma linguagem dinâmica de alto nível e alto desempenho. Ela se assemelha ao MatLab e ao Python na facilidade de escrita de código, mas sua velocidade pode ser comparável ao C e Fortran.</p> <h1>Jupyter</h1> <p>O Jupyter é uma interface web para Julia, Python, e muitas outras. Ela não é o Julia, isto é, o Julia não depende do Jupyter para funcionar. No entanto, usando o Jupyter, aulas e apresentações ficam mais práticas.</p> <p>Cada célula do Jupyter pode ser executada com um ctrl&#43;enter, ou um shift&#43;enter, sendo que o último move a seleção para a célula de baixo. Você pode adicionar novas células usando o &#43; no topo da página.</p> <h1>O REPL - Terminal Interativo</h1> <p>Ao abrir o Julia no Windows, ou digitar julia no terminal do Mac ou Linux, se abrirá um prompt tipo</p> <pre><code class=language-julia-repl >julia&gt;</code></pre>
 <p>O Jupyter também serve como esse prompt e todo comando digitado aqui pode   ser digitado lá.</p>
 <h2>Editor: VSCode</h2>
 <p>A fazer...</p>
@@ -80,13 +80,13 @@ Solução
  0.469304   0.353129  0.043141
  0.0623676  0.767602  0.267985</code></pre>
 <pre><code class=language-julia >A * v</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
- 0.7823632343523123
+ 0.7823632343523121
  1.002766408376991</code></pre>
 <pre><code class=language-julia >w &#61; rand&#40;2&#41;</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
  0.06684644402498341
  0.15663663731366406</code></pre>
 <pre><code class=language-julia >A&#39; * w</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
- 0.041140328727221634
+ 0.04114032872722164
  0.14383998251721294
  0.044860035999713756</code></pre>
 <pre><code class=language-julia >A&#39; * A</code></pre><pre><code class=plaintext >3×3 Matrix{Float64}:
@@ -113,16 +113,16 @@ x &#61; A \ b # Resolve o SL</code></pre><pre><code class=plaintext >3-element V
   2.1839037981597493
   0.22954922712702647</code></pre>
 <pre><code class=language-julia >inv&#40;A&#41; * b</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
- -1.5158905674980963
+ -1.515890567498096
   2.183903798159749
   0.22954922712702644</code></pre>
 <pre><code class=language-julia >A * x - b # É pra ser zero &#40;ou quase&#41;</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
  -2.7755575615628914e-17
- -2.220446049250313e-16
+ -1.8041124150158794e-16
  -1.1102230246251565e-16</code></pre>
 <pre><code class=language-julia >using LinearAlgebra
 
-norm&#40;A * x - b&#41; # norm &#61; ‖ ⋅ ‖</code></pre><pre><code class=plaintext >2.498001805406602e-16</code></pre>
+norm&#40;A * x - b&#41; # norm &#61; ‖ ⋅ ‖</code></pre><pre><code class=plaintext >2.1364582767275725e-16</code></pre>
 <pre><code class=language-julia >v &#61; &#91;1.0; 2.0; 3.0&#93;
 w &#61; &#91;2.0; -2.0; 2.0&#93;
 dot&#40;v, w&#41; # ⟨v,w⟩</code></pre><pre><code class=plaintext >4.0</code></pre>
@@ -208,7 +208,7 @@ Solução
 b &#61; A * ones&#40;50&#41;;</code></pre>
 <p><strong>Q2:</strong></p>
 <pre><code class=language-julia >x &#61; A \ b
-norm&#40;x .- 1&#41;</code></pre><pre><code class=plaintext >1.0065364234084525e-13</code></pre>
+norm&#40;x .- 1&#41;</code></pre><pre><code class=plaintext >6.29238916693866e-14</code></pre>
 
 </div></div></div>
 
@@ -782,7 +782,7 @@ gr&#40;size&#61;&#40;600,400&#41;&#41;
 plot&#40;&#91;1; 2; 3&#93;, &#91;3; 1; 2&#93;&#41; # plot&#40;x, y&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex1.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex1.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >x &#61; range&#40;0, 1, length&#61;100&#41; # 100 elementos igual. esp. de 0 a 1
@@ -790,26 +790,26 @@ y &#61; x.^2
 plot&#40;x, y&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex2.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex2.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, x .* &#40;1 .- x&#41; * 4&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex3.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex3.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, rand&#40;100&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex4.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex4.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >f&#40;x&#41; &#61; x * sin&#40;x&#41;
 plot&#40;f, 0, 4pi&#41; # plot&#40;f, a, b&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex5.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex5.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >plot&#40;x-&gt;exp&#40;x&#41; * x, -1, 1&#41;
@@ -818,7 +818,7 @@ xlims&#33;&#40;-0.5, 0.5&#41;
 ylims&#33;&#40;0.5, 1.5&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex6.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex6.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >t &#61; range&#40;-2, stop&#61;3, length&#61;200&#41;
@@ -829,7 +829,7 @@ xlims&#33;&#40;-20, 30&#41;
 ylims&#33;&#40;-30, 20&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex7.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex7.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >plot&#40;sin, 0, 2pi, label&#61;&quot;sin&quot;&#41;
@@ -843,7 +843,7 @@ ylims&#33;&#40;-1.2, 1.2&#41;
 xticks&#33;&#40;0:pi/2:2pi, &#91;&quot;0&quot;, &quot;\\pi /2&quot;, &quot;\\pi&quot;, &quot;3\\pi/2&quot;, &quot;2\\pi&quot;&#93;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-ex8.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-ex8.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >x &#61; range&#40;0, stop&#61;2*pi, length&#61;100&#41;
@@ -852,7 +852,7 @@ for i &#61; 1:5:100
     plot&#40;x&#91;1:i&#93;, sin.&#40;x&#91;1:i&#93;&#41;&#41;
     frame&#40;anim&#41;
 end</code></pre><pre><code class=plaintext >Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-1.gif")</code></pre>
-<img src="/calculo-numerico/assets/intro-a-julia/code/output/exemplo-1.gif" alt="">
+<img src="/assets/intro-a-julia/code/output/exemplo-1.gif" alt="">
 <pre><code class=language-julia >x &#61; range&#40;0, stop&#61;2*pi, length&#61;100&#41;
 anim &#61; Animation&#40;&#41;
 for i &#61; 1:3:100
@@ -861,7 +861,7 @@ for i &#61; 1:3:100
     ylims&#33;&#40;-1, 1&#41;
     frame&#40;anim&#41;
 end</code></pre><pre><code class=plaintext >Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-2.gif")</code></pre>
-<img src="/calculo-numerico/assets/intro-a-julia/code/output/exemplo-2.gif" alt="">
+<img src="/assets/intro-a-julia/code/output/exemplo-2.gif" alt="">
 <pre><code class=language-julia >x &#61; range&#40;0, stop&#61;2*pi, length&#61;100&#41;
 anim &#61; Animation&#40;&#41;
 for i &#61; 1:3:100
@@ -873,7 +873,7 @@ for i &#61; 1:3:100
     ylims&#33;&#40;-2, 2&#41;
     frame&#40;anim&#41;
 end</code></pre><pre><code class=plaintext >Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-3.gif")</code></pre>
-<img src="/calculo-numerico/assets/intro-a-julia/code/output/exemplo-3.gif" alt="">
+<img src="/assets/intro-a-julia/code/output/exemplo-3.gif" alt="">
 <pre><code class=language-julia >x &#61; range&#40;0, stop&#61;2*pi, length&#61;100&#41;
 anim &#61; Animation&#40;&#41;
 for i &#61; 1:3:100
@@ -885,7 +885,7 @@ for i &#61; 1:3:100
     ylims&#33;&#40;-2, 2&#41;
     frame&#40;anim&#41;
 end</code></pre><pre><code class=plaintext >Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-4.gif")</code></pre>
-<img src="/calculo-numerico/assets/intro-a-julia/code/output/exemplo-4.gif" alt="">
+<img src="/assets/intro-a-julia/code/output/exemplo-4.gif" alt="">
 <p>Imagens 3d &#40;ou de objetos 3d&#41;</p>
 <p>As principais ferramentas são o contour para curvas de nível e surface e   wireframe para superfícies.</p>
 <pre><code class=language-julia >f&#40;x,y&#41; &#61; x^2 &#43; 4y^2
@@ -899,7 +899,7 @@ wireframe&#33;&#40;plt&#91;3&#93;, X, Y, f&#41;
 surface&#33;&#40;plt&#91;4&#93;, X, Y, f, camera&#61;&#40;60, 60&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-3d1.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-3d1.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >f&#40;x,y&#41; &#61; &#40;y - 0.5&#41; / &#40;x^2 &#43; 1&#41;
@@ -911,7 +911,7 @@ wireframe&#33;&#40;plt&#91;3&#93;, X, Y, f&#41;
 surface&#33;&#40;plt&#91;4&#93;, X, Y, f, camera&#61;&#40;60, 60&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/intro-a-julia/code/output/plt-3d2.png" alt=""> 
+   <img src="/assets/intro-a-julia/code/output/plt-3d2.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >u0&#40;x, y&#41; &#61; exp&#40;-&#40;&#40;x - y^2&#41;^2 &#43; x^2&#41;&#41;
@@ -932,7 +932,7 @@ for ti &#61; t
     zlims&#33;&#40;0, 1&#41;
     frame&#40;anim&#41;
 end</code></pre><pre><code class=plaintext >Plots.AnimatedGif("/home/runner/work/calculo-numerico/calculo-numerico/__site/assets/intro-a-julia/code/output/exemplo-5.gif")</code></pre>
-<img src="/calculo-numerico/assets/intro-a-julia/code/output/exemplo-5.gif" alt="">
+<img src="/assets/intro-a-julia/code/output/exemplo-5.gif" alt="">
 <h1>Exercícios</h1>
 <ol>
 <li><p>Crie um vetor x aleatório, e crie y &#61; 2x &#43; 3. Crie um plot e depois um   scatter de x vs y.</p>
@@ -985,16 +985,16 @@ plot&#33;&#40;x -&gt; 1 &#43; x &#43; 0.5x^2, -1, 1, c&#61;:blue, l&#61;:dash&#4
 </footer>
 
 
-<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
-<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/auto-render.min.js"></script>
 <script>renderMathInElement(document.body)</script>
 
 
 
-<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
 
-<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
 <script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>

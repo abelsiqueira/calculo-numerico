@@ -1,8 +1,8 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Eliminação Gaussiana</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id=matrizes ><a href="#matrizes" class=header-anchor >Matrizes</a></h1> <p>Matrizes são maneiras eficientes de representação de várias coisas, em especial transformações lineares. Muitas aplicações práticas caem em sistemas lineares, e mais outras têm representações matriciais. Sendo assim, a execução eficiente da chamada <strong>álgebra linear numérica</strong> é essencial.</p> <h2 id=blas ><a href="#blas" class=header-anchor >BLAS</a></h2> <p><strong>BLAS - Basic Linear Algebra Subroutines</strong>, corresponde à uma classe de softwares que implementam álgebra linear numérica. Existem diversos BLAS, sendo alguns proprietários, alguns abertos, alguns genéricos, e alguns específicos para o processador. O BLAS é uma das unidades mais básicas do software matemático, e não vamos tentar reimplementá-lo. Porém, vamos estudar alguns aspectos que são a base para coisas mais avançadas.</p> <pre><code class=language-julia >A &#61; rand&#40;3,3&#41;
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/katex/katex.min.css"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <link href="/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="/css/code-katex.css"> <link rel=stylesheet  href="/css/custom.css"> <link rel=stylesheet  href="/css/dark-mode.css"> <title>Eliminação Gaussiana</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/">Home</a> <li class=nav-item ><a class=nav-link  href="/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id=matrizes ><a href="#matrizes" class=header-anchor >Matrizes</a></h1> <p>Matrizes são maneiras eficientes de representação de várias coisas, em especial transformações lineares. Muitas aplicações práticas caem em sistemas lineares, e mais outras têm representações matriciais. Sendo assim, a execução eficiente da chamada <strong>álgebra linear numérica</strong> é essencial.</p> <h2 id=blas ><a href="#blas" class=header-anchor >BLAS</a></h2> <p><strong>BLAS - Basic Linear Algebra Subroutines</strong>, corresponde à uma classe de softwares que implementam álgebra linear numérica. Existem diversos BLAS, sendo alguns proprietários, alguns abertos, alguns genéricos, e alguns específicos para o processador. O BLAS é uma das unidades mais básicas do software matemático, e não vamos tentar reimplementá-lo. Porém, vamos estudar alguns aspectos que são a base para coisas mais avançadas.</p> <pre><code class=language-julia >A &#61; rand&#40;3,3&#41;
 v &#61; rand&#40;3&#41;
 A * v</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
  0.6063311281180966
- 1.3074334601811501
+ 1.30743346018115
  0.6045143479640743</code></pre> <pre><code class=language-julia >using LinearAlgebra
 
 names&#40;LinearAlgebra.BLAS&#41; |&gt; show</code></pre><pre><code class=plaintext >[:BLAS, :asum, :axpby!, :axpy!, :blascopy!, :dotc, :dotu, :gbmv, :gbmv!, :gemm, :gemm!, :gemv, :gemv!, :ger!, :hemm, :hemm!, :hemv, :hemv!, :her!, :her2k, :her2k!, :herk, :herk!, :hpmv!, :iamax, :nrm2, :rot!, :sbmv, :sbmv!, :scal, :scal!, :spmv!, :symm, :symm!, :symv, :symv!, :syr!, :syr2k, :syr2k!, :syrk, :syrk!, :trmm, :trmm!, :trmv, :trmv!, :trsm, :trsm!, :trsv, :trsv!]</code></pre>
@@ -66,10 +66,10 @@ multAx2&#40;y2, A, x&#41;
 norm&#40;y1 - y2&#41;</code></pre><pre><code class=plaintext >0.0</code></pre>
 <pre><code class=language-julia >t₀ &#61; time&#40;&#41;
 multAx1&#40;y, A, x&#41;
-Δt &#61; time&#40;&#41; - t₀</code></pre><pre><code class=plaintext >0.005050182342529297</code></pre>
+Δt &#61; time&#40;&#41; - t₀</code></pre><pre><code class=plaintext >0.004209041595458984</code></pre>
 <pre><code class=language-julia >t₀ &#61; time&#40;&#41;
 multAx2&#40;y, A, x&#41;
-Δt &#61; time&#40;&#41; - t₀</code></pre><pre><code class=plaintext >0.001280069351196289</code></pre>
+Δt &#61; time&#40;&#41; - t₀</code></pre><pre><code class=plaintext >0.0013821125030517578</code></pre>
 <pre><code class=language-julia >A &#61; rand&#40;3, 3&#41;
 A&#91;:&#93;</code></pre><pre><code class=plaintext >9-element Vector{Float64}:
  0.12592383127519824
@@ -162,9 +162,9 @@ b &#61; A * ones&#40;3&#41;</code></pre><pre><code class=plaintext >3-element Ve
  1.032617290529063</code></pre>
 <p>b foi criado para que Ax &#61; b tenha como solução o vetor de uns.</p>
 <pre><code class=language-julia >x &#61; A\b</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
- 1.0
- 1.0
- 1.0</code></pre>
+ 0.9999999999999998
+ 1.0000000000000002
+ 0.9999999999999998</code></pre>
 <pre><code class=language-julia >A &#61; zeros&#40;5,5&#41; &#43; 2I
 for i &#61; 1:4
     A&#91;i,i&#43;1&#93; &#61; 1
@@ -339,7 +339,7 @@ elim_gauss&#40;A, b&#41;</code></pre><pre><code class=plaintext >([3.0 1.0 2.0; 
  0.0  0.0      2.85714  2.85714</code></pre>
 <pre><code class=language-julia >A \ b</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
  1.0
- 1.0000000000000002
+ 1.0
  0.9999999999999999</code></pre>
 <pre><code class=language-julia >A &#61; &#91;0.0 1.0; 1.0 0.0&#93;</code></pre><pre><code class=plaintext >2×2 Matrix{Float64}:
  0.0  1.0
@@ -351,7 +351,7 @@ elim_gauss&#40;A, b&#41;</code></pre><pre><code class=plaintext >Diagonal quase 
 b &#61; &#91;6.0; 2; 6&#93;
 A \ b</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
  1.0
- 1.0000000000000002
+ 1.0
  0.9999999999999999</code></pre>
 <p>Agora para o algoritmo de resolução do sistema triangular superior.</p>
 <ol>
@@ -420,9 +420,9 @@ end
 A &#61; rand&#40;100, 100&#41;
 b &#61; A * ones&#40;100&#41;;</code></pre>
 <pre><code class=language-julia >&#40;100 * 100 &#43; 100 &#43; 100&#41; * Float64.size / 1024</code></pre><pre><code class=plaintext >79.6875</code></pre>
-<pre><code class=language-julia >@time x &#61; resolve&#40;A, b&#41;;</code></pre><pre><code class=plaintext >  0.013401 seconds (21.27 k allocations: 12.167 MiB, 34.83% compilation time)
+<pre><code class=language-julia >@time x &#61; resolve&#40;A, b&#41;;</code></pre><pre><code class=plaintext >  0.010829 seconds (21.27 k allocations: 12.167 MiB, 30.69% compilation time)
 </code></pre>
-<pre><code class=language-julia >@time x &#61; A \ b;</code></pre><pre><code class=plaintext >  0.000296 seconds (4 allocations: 79.953 KiB)
+<pre><code class=language-julia >@time x &#61; A \ b;</code></pre><pre><code class=plaintext >  0.000328 seconds (4 allocations: 79.953 KiB)
 </code></pre>
 <h2 id=pontos_importantes ><a href="#pontos_importantes" class=header-anchor >Pontos importantes</a></h2>
 <ul>
@@ -480,7 +480,7 @@ A</code></pre><pre><code class=plaintext >3×3 Matrix{Float64}:
  0.0  0.0      2.85714</code></pre>
 <pre><code class=language-julia >A \ b</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
  1.0
- 1.0000000000000002
+ 1.0
  0.9999999999999999</code></pre>
 <pre><code class=language-julia >A &#61; &#91;1 1e-11; 1e-11 100&#93;
 b &#61; A * ones&#40;2&#41;
@@ -492,7 +492,7 @@ b &#61; A * ones&#40;2&#41;
 resolve&#40;A, b&#41; .- 1</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
  0.0004441719502210617
  0.0</code></pre>
-<pre><code class=language-julia >cond&#40;A&#41;</code></pre><pre><code class=plaintext >100.0</code></pre>
+<pre><code class=language-julia >cond&#40;A&#41;</code></pre><pre><code class=plaintext >100.00000000000001</code></pre>
 <h2 id=pivoteamento ><a href="#pivoteamento" class=header-anchor >Pivoteamento</a></h2>
 <p>Pivoteamento é o nome dado à troca de linhas no processo de eliminação Gaussiana. Às vezes podemos fazer troca de colunas também, e para diferenciar costuma-se dizer eliminação Gaussiana com pivoteamento parcial.</p>
 <p>O primeiro motivo pelo qual o pivoteamento é importante é o zero na diagonal.</p>
@@ -730,7 +730,7 @@ C</code></pre><pre><code class=plaintext >4×5 Matrix{Float64}:
 <pre><code class=language-julia >U &#61; C&#91;1:4, 1:4&#93;
 c &#61; C&#91;1:4, 5&#93;
 U \ c</code></pre><pre><code class=plaintext >4-element Vector{Float64}:
- 0.9999999999999998
+ 0.9999999999999996
  1.0000000000000002
  0.9999999999999997
  1.0</code></pre>
@@ -813,12 +813,12 @@ end
 
 A &#61; rand&#40;4, 4&#41;
 b &#61; A * ones&#40;4&#41;
-elim_gauss_pivot&#40;A, b&#41;</code></pre><pre><code class=plaintext >([0.7913462490414747 0.8422557594578175 0.5058046332164718 0.5058741376644247; 0.0 0.11682520422031732 0.5907585334434668 0.3606584626063668; 0.0 0.0 0.7594577655944923 0.07851606035207387; 0.0 0.0 0.0 0.30820672286451894], [2.6452807793801885, 1.068242200270151, 0.8379738259465666, 0.3082067228645194])</code></pre>
+elim_gauss_pivot&#40;A, b&#41;</code></pre><pre><code class=plaintext >([0.7913462490414747 0.8422557594578175 0.5058046332164718 0.5058741376644247; 0.0 0.11682520422031732 0.5907585334434668 0.3606584626063668; 0.0 0.0 0.7594577655944923 0.07851606035207387; 0.0 0.0 0.0 0.30820672286451894], [2.645280779380189, 1.068242200270151, 0.8379738259465661, 0.30820672286451867])</code></pre>
 <pre><code class=language-julia >A \ b</code></pre><pre><code class=plaintext >4-element Vector{Float64}:
- 1.0000000000000044
- 0.9999999999999949
- 1.0000000000000002
- 1.0000000000000013</code></pre>
+ 0.999999999999997
+ 1.0000000000000036
+ 1.0
+ 0.9999999999999991</code></pre>
 <pre><code class=language-julia >A &#61; &#91;1e-12 100; 1 1e-12&#93;
 b &#61; A * ones&#40;2&#41;
 elim_gauss_pivot&#40;A, b&#41;</code></pre><pre><code class=plaintext >([1.0 1.0e-12; 0.0 100.0], [1.000000000001, 100.0])</code></pre>
@@ -1027,9 +1027,9 @@ L</code></pre><pre><code class=plaintext >3×3 Matrix{Float64}:
 \[x = U^{-1} L^{-1} b.\]
 <pre><code class=language-julia >b &#61; A * ones&#40;3&#41;
 &#40;U \ &#40;L \ b&#41;&#41;</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
- 0.9999999999999998
+ 0.9999999999999996
  1.0000000000000002
- 1.0000000000000002</code></pre>
+ 1.0000000000000004</code></pre>
 <pre><code class=language-julia >function declu&#40;A::Matrix; diagtol &#61; 1e-12&#41;
     n &#61; size&#40;A, 1&#41;
     for j &#61; 1:n-1
@@ -1470,16 +1470,16 @@ A</code></pre><pre><code class=plaintext >4×4 Matrix{Float64}:
 </footer>
 
 
-<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
-<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/auto-render.min.js"></script>
 <script>renderMathInElement(document.body)</script>
 
 
 
-<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
 
-<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
 <script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>

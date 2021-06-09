@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Quadrados Mínimos</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="quadrados_mínimos_e_ajustes_de_curvas"><a href="#quadrados_mínimos_e_ajustes_de_curvas" class=header-anchor >Quadrados Mínimos e Ajustes de Curvas</a></h1> <pre><code class=language-julia >using Plots
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/katex/katex.min.css"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <link href="/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="/css/code-katex.css"> <link rel=stylesheet  href="/css/custom.css"> <link rel=stylesheet  href="/css/dark-mode.css"> <title>Quadrados Mínimos</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/">Home</a> <li class=nav-item ><a class=nav-link  href="/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="quadrados_mínimos_e_ajustes_de_curvas"><a href="#quadrados_mínimos_e_ajustes_de_curvas" class=header-anchor >Quadrados Mínimos e Ajustes de Curvas</a></h1> <pre><code class=language-julia >using Plots
 gr&#40;size&#61;&#40;600,400&#41;&#41;</code></pre><pre><code class=plaintext >Plots.GRBackend()</code></pre>
 <p>O problema de ajuste de um conjunto de dados à um modelo, simplesmente dito ajuste de curvas, é um problema bastante prático e recorrente. Esse problema acontece quando temos muito mais informação que o necessário para se determinar exatamente um modelo. Mas isso também só faz sentido se essa informação tiver algum tipo de erro experimental ou intrínseco.</p>
 <p>Considere o seguinte problema de ajustar um conjunto de pontos por uma reta.</p>
@@ -8,7 +8,7 @@ scatter&#40;x, y&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin01&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin01.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin01.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >β₀, β₁, β₂ &#61; -62/70, -1/10, 80/70
@@ -17,7 +17,7 @@ plot&#33;&#40;x -&gt; β₀ &#43; β₁ * x &#43; β₂ * x^2, -2, 2, c&#61;:red
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin02&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin02.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin02.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >m &#61; 100
@@ -28,7 +28,7 @@ plot&#33;&#40;x -&gt; 0.58x &#43; 1.92, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin03&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin03.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin03.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >E&#40;α,β&#41; &#61; 0.5 * sum&#40;&#40;y&#91;i&#93; - α - β * x&#91;i&#93;&#41;^2 for i &#61; 1:m&#41;
@@ -39,7 +39,7 @@ contour&#40;range&#40;1, 3, length&#61;100&#41;,
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin04&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin04.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin04.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >M11 &#61; m
@@ -52,7 +52,7 @@ M &#61; &#91;M11 M12; M21 M22&#93;
 c &#61; &#91;c1; c2&#93;
 αβ &#61; M \ c
 
-α, β &#61; αβ&#91;1&#93;, αβ&#91;2&#93;</code></pre><pre><code class=plaintext >(1.9009700269470817, 0.58565223532155)</code></pre>
+α, β &#61; αβ&#91;1&#93;, αβ&#91;2&#93;</code></pre><pre><code class=plaintext >(1.9480047260752793, 0.5859786502287074)</code></pre>
 <pre><code class=language-julia >E&#40;α,β&#41; &#61; 0.5 * sum&#40;&#40;y&#91;i&#93; - α - β * x&#91;i&#93;&#41;^2 for i &#61; 1:m&#41;
 contour&#40;range&#40;1, 3, length&#61;100&#41;,
         range&#40;0.0, 1.0, length&#61;100&#41;,
@@ -62,7 +62,7 @@ scatter&#33;&#40;&#91;α&#93;, &#91;β&#93;, c&#61;:red, ms&#61;3&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin05&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin05.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin05.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false, c&#61;:lightblue, ms&#61;4&#41;
@@ -70,7 +70,7 @@ plot&#33;&#40;x -&gt; α &#43; β * x, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin06&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin06.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin06.png" alt=""> 
   </figure>
   
 <p>Não existe uma reta que passa por todos esses pontos. Inclusive, alguns deles podem ter o mesmo \(x\), de modo que não existe nenhum função que passa por eles. Sendo assim, precisamos encontrar uma reta que aproxima estes pontos.</p>
@@ -85,31 +85,31 @@ png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin06&quot;&#41;&#41;</code></pre>
 <p>Para calcular essa derivada, devemos calcular a derivada de Erro\(_i\). Então, a escolha dessa função de erro deve ser bem pensada, para que seja significativa e fácil de derivar.</p>
 <p>A escolha mais comum é Erro\(_i = \frac{1}{2}[\alpha + \beta x_i - y_i]^2 = \frac{1}{2}[L(x_i) - y_i]^2\).</p>
 <p>Essa escolha é boa pois a derivada dessa função é fácil de calcular, e é fácil de visualizar que é o quadrado da distância vertical da reta ao ponto \((x_i,y_i)\).</p>
-<pre><code class=language-julia >E&#40;0,0&#41;</code></pre><pre><code class=plaintext >622.0267665906364</code></pre>
+<pre><code class=language-julia >E&#40;0,0&#41;</code></pre><pre><code class=plaintext >636.7901995911786</code></pre>
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
 plot&#33;&#40;x-&gt;0 &#43; 0*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin07&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin07.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin07.png" alt=""> 
   </figure>
   
-<pre><code class=language-julia >E&#40;2,0&#41;</code></pre><pre><code class=plaintext >207.57186707259999</code></pre>
+<pre><code class=language-julia >E&#40;2,0&#41;</code></pre><pre><code class=plaintext >212.7977942846399</code></pre>
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
 plot&#33;&#40;x-&gt;2 &#43; 0*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin08&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin08.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin08.png" alt=""> 
   </figure>
   
-<pre><code class=language-julia >E&#40;2,0.5&#41;</code></pre><pre><code class=plaintext >7.663963746761247</code></pre>
+<pre><code class=language-julia >E&#40;2,0.5&#41;</code></pre><pre><code class=plaintext >7.982384253005751</code></pre>
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
 plot&#33;&#40;x-&gt;2 &#43; 0.5*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin09&quot;&#41;&#41;</code></pre>
 <p>
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin09.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin09.png" alt=""> 
   </figure>
    É fácil ver que</p>
 \[ \partial_{\alpha} E(\alpha,\beta) = \sum_{i=1}^m (\alpha + \beta x_i - y_i), \]
@@ -123,23 +123,23 @@ png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin09&quot;&#41;&#41;</code></pre>
 <p>Esse sistema é bastante fácil de resolver.</p>
 <p>Lembrando</p>
 <pre><code class=language-julia >using LinearAlgebra
-dot&#40;x, y&#41;</code></pre><pre><code class=plaintext >1112.357894193765</code></pre>
+dot&#40;x, y&#41;</code></pre><pre><code class=plaintext >1122.1729076053557</code></pre>
 <pre><code class=language-julia >M &#61; &#91;m  sum&#40;x&#41;; sum&#40;x&#41;   dot&#40;x,x&#41;&#93;</code></pre><pre><code class=plaintext >2×2 Matrix{Float64}:
  100.0   200.0
  200.0  1250.17</code></pre>
 <pre><code class=language-julia >b &#61; &#91;sum&#40;y&#41;; dot&#40;x,y&#41;&#93;</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
-  307.2274497590182
- 1112.357894193765</code></pre>
+  311.9962026532694
+ 1122.1729076053557</code></pre>
 <pre><code class=language-julia >α, β &#61; M\b</code></pre><pre><code class=plaintext >2-element Vector{Float64}:
- 1.9009700269470817
- 0.5856522353215503</code></pre>
-<pre><code class=language-julia >E&#40;α,β&#41;</code></pre><pre><code class=plaintext >4.2842362609189655</code></pre>
+ 1.9480047260752784
+ 0.5859786502287077</code></pre>
+<pre><code class=language-julia >E&#40;α,β&#41;</code></pre><pre><code class=plaintext >4.1204780872187925</code></pre>
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
 plot&#33;&#40;x-&gt;α &#43; β*x, x&#91;1&#93;, x&#91;m&#93;, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin10&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin10.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin10.png" alt=""> 
   </figure>
   
 <p>Visualmente, a reta parece aproximar bem mesmo os pontos dados.</p>
@@ -161,7 +161,7 @@ scatter&#40;t, b, c&#61;:lightblue, ms&#61;3, leg&#61;false&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin11&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin11.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin11.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >ϕ₁ &#61; ones&#40;m&#41;
@@ -181,7 +181,7 @@ plot&#33;&#40;t, y_pred, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin12&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin12.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin12.png" alt=""> 
   </figure>
   
 <p>Seu objetivo é estimar a temperatura em um dia no futuro. Olhando para o gráfico, aparentemente a temperatura segue um modelo do tipo</p>
@@ -312,7 +312,7 @@ scatter&#40;x, y, leg&#61;false&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin14&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin14.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin14.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >A &#61; &#91;ones&#40;5&#41;  x  x.^2&#93;</code></pre><pre><code class=plaintext >5×3 Matrix{Float64}:
@@ -330,9 +330,9 @@ png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin14&quot;&#41;&#41;</code></pre>
   32.0
  112.0</code></pre>
 <pre><code class=language-julia >β &#61; &#40;A&#39; * A&#41; \ &#40;A&#39; * y&#41;</code></pre><pre><code class=plaintext >3-element Vector{Float64}:
- -0.7142857142857146
-  0.8285714285714288
-  0.1428571428571428</code></pre>
+ -0.7142857142857136
+  0.8285714285714268
+  0.1428571428571433</code></pre>
 <pre><code class=language-julia >n &#61; 1000
 x &#61; range&#40;-2, 3, length&#61;n&#41;
 y &#61; exp.&#40;-x&#41; .* x &#43; randn&#40;n&#41;
@@ -340,7 +340,7 @@ scatter&#40;x, y&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin15&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin15.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin15.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >ϕ1&#40;x&#41; &#61; log&#40;x &#43; 2 &#43; 1e-8&#41;
@@ -355,7 +355,7 @@ plot&#33;&#40;x -&gt; β&#91;1&#93; * ϕ1&#40;x&#41; &#43; β&#91;2&#93; * ϕ2&#
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin16&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin16.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin16.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
@@ -363,7 +363,7 @@ plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; β&#91;2&#93; * x &#43; β&#91;3&#93; 
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin17&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin17.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin17.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >&quot;&quot;&quot;&#96;regressao_linear&#40;x, y&#41;&#96;
@@ -462,7 +462,7 @@ plot&#33;&#40;x -&gt; exp&#40;β&#91;1&#93; &#43; β&#91;2&#93; * x&#41;, c&#61;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin22&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin22.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin22.png" alt=""> 
   </figure>
   
 <p>A avaliação de um modelo...</p>
@@ -514,7 +514,7 @@ title&#33;&#40;&quot;y_Med&quot;&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin23&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin23.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin23.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, y, leg&#61;false&#41;
@@ -529,7 +529,7 @@ title&#33;&#40;&quot;y_pred&quot;&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin24&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin24.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin24.png" alt=""> 
   </figure>
   
 <p>A métrica \(R^2\) é definida pela fórmula</p>
@@ -548,7 +548,7 @@ title&#33;&#40;&quot;y_nao_otimo&quot;&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin25&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin25.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin25.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >R2 &#61; 1 - norm&#40;y_nao_otimo - y&#41;^2 / norm&#40;y_med .- y&#41;^2</code></pre><pre><code class=plaintext >0.9350294978415356</code></pre>
@@ -576,7 +576,7 @@ plot&#33;&#40;t, y_pred, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin26&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin26.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin26.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >ST &#61; norm&#40;y .- y_med&#41;^2
@@ -586,7 +586,7 @@ R2_quase &#61; 1 - Sr_quase / ST
 R2_pred &#61; 1 - Sr_pred / ST
 println&#40;&quot;R2_quase &#61; &#36;R2_quase&quot;&#41;
 println&#40;&quot;R2_pred &#61; &#36;R2_pred&quot;&#41;</code></pre><pre><code class=plaintext >R2_quase = 0.9116950354203089
-R2_pred = 0.9228452967060901
+R2_pred = 0.92284529670609
 </code></pre>
 <h2 id="validação_cruzada"><a href="#validação_cruzada" class=header-anchor >Validação Cruzada</a></h2>
 <p>Outra questão do ajuste é que se ele generaliza bem o problema. Podemos ajustar um conjunto de dados com \(x\) distintos por um polinômio de grau suficientemente grande e obter uma solução perfeita:</p>
@@ -607,7 +607,7 @@ scatter&#40;x, y, leg&#61;false&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin27&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin27.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin27.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >p &#61; 1
@@ -620,7 +620,7 @@ plot&#33;&#40;xlin, y_pred, c&#61;:red, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin28&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin28.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin28.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >y_med &#61; mean&#40;y&#41;
@@ -644,7 +644,7 @@ title&#33;&#40;@sprintf&#40;&quot;SQR &#61; &#37;6.4f, R2 &#61; &#37;6.4f&quot;,
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin29&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin29.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin29.png" alt=""> 
   </figure>
   
 <p><strong>Dados além dos conhecidos</strong></p>
@@ -669,7 +669,7 @@ title&#33;&#40;@sprintf&#40;&quot;SQR &#61; &#37;6.4f, R2 &#61; &#37;6.4f&quot;,
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin30&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin30.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin30.png" alt=""> 
   </figure>
   
 <h3 id="validação_cruzada_-_separação_em_treino_e_teste"><a href="#validação_cruzada_-_separação_em_treino_e_teste" class=header-anchor >Validação Cruzada - Separação em treino e teste</a></h3>
@@ -684,7 +684,7 @@ scatter&#40;x, y, leg&#61;false&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin31&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin31.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin31.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >Random.seed&#33;&#40;0&#41;
@@ -696,14 +696,14 @@ x_tr, y_tr, x_te, y_te &#61; x&#91;1:k&#93;, y&#91;1:k&#93;, x&#91;k&#43;1:end&#
 p &#61; 6
 β &#61; regressao_polinomial&#40;x_tr, y_tr, p&#41; # Apenas o conjunto de treino é usado
 y_pred &#61; &#91;β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * xi^j for j &#61; 1:p&#41; for xi &#61; x_te&#93;
-erro &#61; 0.5 * norm&#40;y_te - y_pred&#41;^2</code></pre><pre><code class=plaintext >29.518507782361347</code></pre>
+erro &#61; 0.5 * norm&#40;y_te - y_pred&#41;^2</code></pre><pre><code class=plaintext >29.518507782354618</code></pre>
 <pre><code class=language-julia >scatter&#40;leg&#61;false&#41;
 scatter&#33;&#40;x_tr, y_tr, c&#61;:blue&#41;
 plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * x^j for j &#61; 1:p&#41;, 0, 1.0, c&#61;:green, lw&#61;2&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin32&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin32.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin32.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;leg&#61;false&#41;
@@ -712,7 +712,7 @@ plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; sum&#40;β&#91;j &#43; 1&#93; * x^j fo
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin33&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin33.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin33.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >max_p &#61; 15
@@ -733,7 +733,7 @@ plot&#33;&#40;1:max_p, erro_teste, c&#61;:red&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin34&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin34.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin34.png" alt=""> 
   </figure>
   
 <h1 id="um_pouco_mais_sobre_a_visão_estatística"><a href="#um_pouco_mais_sobre_a_visão_estatística" class=header-anchor >Um pouco mais sobre a visão estatística</a></h1>
@@ -755,28 +755,28 @@ ylims&#33;&#40;-15, 25&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin35&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin35.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin35.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, y - yhat, c&#61;:gray&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin36&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin36.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin36.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x * 0, y - yhat, c&#61;:gray&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin37&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin37.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin37.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >histogram&#40;x, y - yhat, bins&#61;20&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin38&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin38.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin38.png" alt=""> 
   </figure>
   
 <p>100 amostras</p>
@@ -792,7 +792,7 @@ plot&#33;&#40;x -&gt; β&#91;1&#93; &#43; β&#91;2&#93; * x, -2, 3, c&#61;:black
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin39&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin39.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin39.png" alt=""> 
   </figure>
   
 <h2 id=forma_matricial ><a href="#forma_matricial" class=header-anchor >Forma matricial</a></h2>
@@ -823,7 +823,7 @@ plot&#33;&#40;t-&gt;Ta, c&#61;:green, l&#61;:dash&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin40&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
   </figure>
   
 <p>De uma maneira geral, podemos considerar um modelo \(\Phi(\alpha,x) = \alpha_1 \phi_1(x) + \dots + \alpha_n \phi_n(x)\) e considerar a minimização de</p>
@@ -836,7 +836,7 @@ png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin40&quot;&#41;&#41;</code></pre>
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin40&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin40.png" alt=""> 
   </figure>
   
 <p>Ou seja, embora os dados \((t_i,T_i)\) não possam ser aproximados por uma reta, os dados \((t_i,\ln (T_i - T_a))\) podem.</p>
@@ -847,7 +847,7 @@ plot&#33;&#40;t, α&#91;1&#93; .&#43; α&#91;2&#93; * t, c&#61;:red, lw&#61;2&#4
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin41&quot;&#41;&#41;</code></pre>
 <p>
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin41.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin41.png" alt=""> 
   </figure>
    Desse modo, estamos aproximando \(\ln(T_i - T_a) \approx \alpha_1 + \alpha_2 t_i\), de modo que</p>
 \[T(t) \approx T_a + e^{\alpha_1 + \alpha_2 t_i}  = T_a + \beta_1 e^{\alpha_2 t_i}, \]
@@ -858,7 +858,7 @@ plot&#33;&#40;t-&gt;Ta &#43; exp.&#40;α&#91;1&#93; &#43; α&#91;2&#93; * t&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin42&quot;&#41;&#41;</code></pre>
 <p>
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin42.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin42.png" alt=""> 
   </figure>
    De fato, esse modelo parece ajustar muito bem os dados.</p>
 <p>Alguns dos modelos que podem ser linearizados estão abaixo:</p>
@@ -890,14 +890,14 @@ y &#61; T .- Ta</code></pre><pre><code class=plaintext >10-element Vector{Float6
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin43&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin43.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin43.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >scatter&#40;x, 1 ./ y, ms&#61;3&#41; # Ruim
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin44&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin44.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin44.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >x &#61; sort&#40;rand&#40;500&#41;*3 .&#43; 1&#41;
@@ -906,7 +906,7 @@ scatter&#40;x, y, ms&#61;3&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin45&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/quadrados-minimos/code/output/fig-quadmin45.png" alt=""> 
+   <img src="/assets/quadrados-minimos/code/output/fig-quadmin45.png" alt=""> 
   </figure>
   
 <h2 id="álgebra_linear_do_problema_de_quadrados_mínimos"><a href="#álgebra_linear_do_problema_de_quadrados_mínimos" class=header-anchor >Álgebra linear do problema de quadrados mínimos</a></h2>
@@ -985,16 +985,16 @@ png&#40;joinpath&#40;@OUTPUT, &quot;fig-quadmin45&quot;&#41;&#41;</code></pre>
 </footer>
 
 
-<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
-<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/auto-render.min.js"></script>
 <script>renderMathInElement(document.body)</script>
 
 
 
-<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
 
-<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
 <script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>

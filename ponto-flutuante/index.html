@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/calculo-numerico/libs/katex/katex.min.css"> <link rel=stylesheet  href="/calculo-numerico/libs/highlight/github.min.css"> <link href="/calculo-numerico/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/calculo-numerico/assets/favicon.png"> <link rel=stylesheet  href="/calculo-numerico/css/code-katex.css"> <link rel=stylesheet  href="/calculo-numerico/css/custom.css"> <link rel=stylesheet  href="/calculo-numerico/css/dark-mode.css"> <title>Aritmética de Ponto Flutuante</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/calculo-numerico/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/">Home</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/calculo-numerico/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/calculo-numerico/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="aritmética_de_ponto_flutuante"><a href="#aritmética_de_ponto_flutuante" class=header-anchor >Aritmética de Ponto Flutuante</a></h1> <p>Os objetivos desta lição são</p> <ul> <li><p>Aprender sobre a representação de números naturais e inteiros na máquina;</p> <li><p>Aprender sobre Aritmética de Ponto Flutuante.</p> </ul> <h2 id="representação_de_inteiros_na_máquina"><a href="#representação_de_inteiros_na_máquina" class=header-anchor >Representação de Inteiros na máquina</a></h2> <p>Os computadores guardam inteiros de maneiras bastante específicas. Essas maneiras envolvem os bits de um computador, que matematicamente equivalem a números binários. Um bit pode estar ligado ou desligado, ou seja, \(1\) ou \(0\). Um inteiro de \(n\) bits terá \(n\) posições ordenadas que podem estar ligadas ou desligadas. Dessa maneira, é possível representar até \(2^n\) inteiros com \(n\) bits. A pergunta é quais \(2^n\) inteiros?</p> <p>Muitas vezes nos preocupamos apenas com os inteiros positivos, então uma escolha bastante simples seria os inteiros de \(0\) à \(2^n-1\). Esse tipo é dito &quot;sem sinal&quot; ou &quot;Unsigned&quot; em inglês. Em Julia, são os tipos <code>UIntN</code>, onde \(N\) é o número de bits \((8, 16, 32, 64, 128)\).</p> <p>Para inteiros positivos e negativos, uma maneira é guardar os númeos de \(-2^{n-1}\) à \(2^{n-1}-1\). Em binário, podemos escolher os \(n-1\) bits da direita para fazer uma contagem de \(0\) à \(2^{n-1}-1\), e o bit mais à esquerda para indicar de começamos a contar de \(-2^{n-1}\) ou de \(0\).</p> <h3 id=exemplo_com_n_3 ><a href="#exemplo_com_n_3" class=header-anchor >Exemplo com n &#61; 3</a></h3> <pre><code class=language-julia >Bin Dec
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/katex/katex.min.css"> <link rel=stylesheet  href="/libs/highlight/github.min.css"> <link href="/css/bootstrap.min.css" rel=stylesheet  crossorigin=anonymous > <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Lato&family=Montserrat&display=swap" rel=stylesheet > <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="/css/code-katex.css"> <link rel=stylesheet  href="/css/custom.css"> <link rel=stylesheet  href="/css/dark-mode.css"> <title>Aritmética de Ponto Flutuante</title> <header> <nav class="navbar navbar-expand-lg"> <div class=container-fluid > <a class="navbar-brand text-end" href="/">Abel S.<br>Siqueira</a> <button class=navbar-toggler  type=button  data-bs-toggle=collapse  data-bs-target="#navbarSupportedContent" aria-controls=navbarSupportedContent  aria-expanded=false  aria-label="Toggle navigation"> <span class=navbar-toggler-icon ></span> </button> <div class="collapse navbar-collapse" id=navbarSupportedContent > <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> <li class=nav-item ><a class=nav-link  href="/">Home</a> <li class=nav-item ><a class=nav-link  href="/julia/">Julia</a> <li class=nav-item ><a class=nav-link  href="/research/">Research</a> <li class=nav-item ><a class=nav-link  href="/ufpr/">UFPR</a> </ul> <div class="dark-switch form-check form-switch"> <input type=checkbox  class=form-check-input  id=darkSwitch  /> <label class=custom-control-label  for=darkSwitch >Dark Mode</label> </div> <script src="/libs/dark-mode-switch.min.js"></script> </div> </div> </nav> </header> <div class=container-fluid > <div class="container main-text"> <div class=franklin-content ><h1 id="aritmética_de_ponto_flutuante"><a href="#aritmética_de_ponto_flutuante" class=header-anchor >Aritmética de Ponto Flutuante</a></h1> <p>Os objetivos desta lição são</p> <ul> <li><p>Aprender sobre a representação de números naturais e inteiros na máquina;</p> <li><p>Aprender sobre Aritmética de Ponto Flutuante.</p> </ul> <h2 id="representação_de_inteiros_na_máquina"><a href="#representação_de_inteiros_na_máquina" class=header-anchor >Representação de Inteiros na máquina</a></h2> <p>Os computadores guardam inteiros de maneiras bastante específicas. Essas maneiras envolvem os bits de um computador, que matematicamente equivalem a números binários. Um bit pode estar ligado ou desligado, ou seja, \(1\) ou \(0\). Um inteiro de \(n\) bits terá \(n\) posições ordenadas que podem estar ligadas ou desligadas. Dessa maneira, é possível representar até \(2^n\) inteiros com \(n\) bits. A pergunta é quais \(2^n\) inteiros?</p> <p>Muitas vezes nos preocupamos apenas com os inteiros positivos, então uma escolha bastante simples seria os inteiros de \(0\) à \(2^n-1\). Esse tipo é dito &quot;sem sinal&quot; ou &quot;Unsigned&quot; em inglês. Em Julia, são os tipos <code>UIntN</code>, onde \(N\) é o número de bits \((8, 16, 32, 64, 128)\).</p> <p>Para inteiros positivos e negativos, uma maneira é guardar os númeos de \(-2^{n-1}\) à \(2^{n-1}-1\). Em binário, podemos escolher os \(n-1\) bits da direita para fazer uma contagem de \(0\) à \(2^{n-1}-1\), e o bit mais à esquerda para indicar de começamos a contar de \(-2^{n-1}\) ou de \(0\).</p> <h3 id=exemplo_com_n_3 ><a href="#exemplo_com_n_3" class=header-anchor >Exemplo com n &#61; 3</a></h3> <pre><code class=language-julia >Bin Dec
 ––– –––
 000   0
 001   1
@@ -100,7 +100,7 @@ yticks&#33;&#40;2 .^ &#40;0:5&#41;&#41;
 png&#40;joinpath&#40;@OUTPUT, &quot;fig1&quot;&#41;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig1.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig1.png" alt=""> 
   </figure>
   
 <p>Veja que as distância são as potências de 2.</p>
@@ -260,7 +260,7 @@ scatter&#33;&#40;valores_h, Ap1.&#40;valores_h&#41;, c&#61;:red, lab&#61;&quot;R
 scatter&#33;&#40;valores_h, Ap2.&#40;valores_h&#41;, c&#61;:blue, lab&#61;&quot;Boa&quot;, ms&#61;3&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-sqrt.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-sqrt.png" alt=""> 
   </figure>
   
 <p>Perceba que alguns ponto do &quot;Ruim&quot; na verdade tem um erro nulo. Isso acontece quando o ponto flutuante coincide com o valor real.</p>
@@ -290,13 +290,13 @@ plot&#40;f, -1, 1, c&#61;:blue&#41;
 plot&#33;&#40;x-&gt;DF&#40;x, h&#41;, -1, 1, c&#61;:red&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der1.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der1.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >plot&#40;x-&gt;DF&#40;x, h&#41; - f&#40;x&#41;, -1, 1, c&#61;:blue&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der2.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der2.png" alt=""> 
   </figure>
   
 <p>Essa aproximação parece bastante boa. Vamos ver num intervalo maior.</p>
@@ -306,7 +306,7 @@ plot&#40;f, -10, 10, c&#61;:blue&#41;
 plot&#33;&#40;x-&gt;DF&#40;x, h&#41;, -10, 10, c&#61;:red&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der3.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der3.png" alt=""> 
   </figure>
   
 <p>Vamos ver o erro dessa aproximação. Aproximação para \(h = 1e-4\)</p>
@@ -314,7 +314,7 @@ plot&#33;&#40;x-&gt;DF&#40;x, h&#41;, -10, 10, c&#61;:red&#41;</code></pre>
 plot&#40;x-&gt;f&#40;x&#41; - DF&#40;x, h&#41;, -10, 10, c&#61;:red&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der4.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der4.png" alt=""> 
   </figure>
   
 <pre><code class=language-julia >abs&#40;f&#40;1.0&#41; - DF&#40;1.0, 1e-4&#41;&#41;/f&#40;1.0&#41;</code></pre><pre><code class=plaintext >5.000166739738369e-5</code></pre>
@@ -339,7 +339,7 @@ end
 plot&#40;hs, Es, m&#61;3, xaxis&#61;:log, yaxis&#61;:log&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der5.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der5.png" alt=""> 
   </figure>
   
 <p>Pelo gráfico podemos ver que o erro diminui até por volta de \(10^{-8}\), e depois aumenta, erraticamente. Vamos tentar descobrir teoricamente o motivo disso.</p>
@@ -369,7 +369,7 @@ plot&#40;hs, hs / 2, xaxis&#61;:log, yaxis&#61;:log, lab&#61;&quot;h / 2&quot;&#
 plot&#33;&#40;hs, 2e-16 ./ hs, c&#61;:red, lab&#61;&quot;2e-16 / h&quot;&#41;</code></pre>
 
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der6.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der6.png" alt=""> 
   </figure>
   
 <p>Note que o limitante para o erro depende de \(1/h\) além de depender de h. Isso quer dizer que a diminuição de h faz o erro crescer bastante, apesar do termo linear dizer que o erro diminui. Felizmente, temos \(1/h\) multiplicado por \(\epsilon_M\), de modo que esse erro começa relativamente pequeno.</p>
@@ -403,7 +403,7 @@ plot&#40;hs, E_av, m&#61;3, xaxis&#61;:log, yaxis&#61;:log, c&#61;:blue&#41;
 plot&#33;&#40;hs, E_ct, m&#61;3, xaxis&#61;:log, yaxis&#61;:log, c&#61;:red&#41;</code></pre>
 <p>
   <figure style="text-align: center">
-   <img src="/calculo-numerico/assets/ponto-flutuante/code/output/fig-der7.png" alt=""> 
+   <img src="/assets/ponto-flutuante/code/output/fig-der7.png" alt=""> 
   </figure>
    A mesma análise pode ser feita para a segunda derivada, assim como outras. Além disso, existem várias maneiras de se aproximar as derivadas, utilizando mais avaliações da função f.</p>
 <h3 id="exercícios"><a href="#exercícios" class=header-anchor >Exercícios</a></h3>
@@ -464,16 +464,16 @@ plot&#33;&#40;hs, E_ct, m&#61;3, xaxis&#61;:log, yaxis&#61;:log, c&#61;:red&#41;
 </footer>
 
 
-<script src="/calculo-numerico/libs/katex/katex.min.js"></script>
-<script src="/calculo-numerico/libs/katex/auto-render.min.js"></script>
+<script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/auto-render.min.js"></script>
 <script>renderMathInElement(document.body)</script>
 
 
 
-<script src="/calculo-numerico/libs/highlight/highlight.pack.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
 
-<script src="/calculo-numerico/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
+<script src="/libs/bootstrap.bundle.min.js" crossorigin=anonymous ></script>
 <script src="https://kit.fontawesome.com/d17d5e5245.js" crossorigin=anonymous ></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/pcooksey/bibtex-js/ef59e62c/src/bibtex_js.js"></script>
